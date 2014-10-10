@@ -1,0 +1,12 @@
+{"params":{"weight":{"min":0.5,"max":5,"unit":0.1},
+"price":{"unit":0.01}},
+"items":[{"name":"item-1","weight":3.1,"price":5.15},
+{"name":"item-2","weight":1.5,"price":2.82},
+{"name":"item-3","weight":4.8,"price":3.26},
+{"name":"item-4","weight":1.3,"price":1.79},
+{"name":"item-5","weight":4,"price":2.32},
+{"name":"item-6","weight":4.4,"price":8.36},
+{"name":"item-7","weight":2.7,"price":5.18},
+{"name":"item-8","weight":3.4,"price":0.82},
+{"name":"item-9","weight":4.6,"price":4.69},
+{"name":"item-10","weight":4.6,"price":0.09}]}
