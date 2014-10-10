@@ -1,13 +1,16 @@
 #!env coffee
 
 {argv} = process
-path = require 'path'
 
 if argv.length < 4
+  path = require 'path'
   console.error "Usase: #{path.basename argv[1]} capacity items.json"
 
-capacity = argv[2]
+capacity = parseFloat argv[2]
 {items} = require "#{process.cwd()}/#{argv[3]}"
+
+console.info "number of items: #{items.length}"
+console.info "capacity: #{capacity.toFixed 1}Kg"
 
 class Knapsack
   constructor: (source = {})->
@@ -34,5 +37,6 @@ max = (m1, m2)->
   if m1.price >= m2.price then m1 else m2
 
 result = new Knapsack().resolv()
-console.log result.items
-console.log "$#{result.price.toFixed 2}, #{result.weight.toFixed 1}Kg of #{result.items.length}"
+console.info 'uptime: ' + process.uptime()
+console.info 'result: ' + result.items
+console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.items.length}"

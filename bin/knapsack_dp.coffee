@@ -1,13 +1,16 @@
 #!env coffee
 
 {argv} = process
-path = require 'path'
 
 if argv.length < 4
+  path = require 'path'
   console.error "Usase: #{path.basename argv[1]} capacity items.json"
 
-capacity = argv[2]
+capacity = parseFloat argv[2]
 {items, params} = require "#{process.cwd()}/#{argv[3]}"
+
+console.info "number of items: #{items.length}"
+console.info "capacity: #{capacity.toFixed 1}Kg"
 
 WEIGHT_UNIT = 1 / params.weight.unit
 PRICE_UNIT = 1 / params.price.unit
@@ -39,5 +42,7 @@ for i in [1..items.length]
 result = m[items.length][capacity * WEIGHT_UNIT]
 result.weight /= WEIGHT_UNIT
 result.price /= PRICE_UNIT
-console.log result.items
-console.log "$#{result.price.toFixed 2}, #{result.weight.toFixed 1}Kg of #{result.items.length}"
+
+console.info 'uptime: ' + process.uptime()
+console.info 'result: ' + result.items
+console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.items.length}"
