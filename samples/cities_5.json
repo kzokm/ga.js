@@ -1,0 +1,6 @@
+{"params":{"position":{"min":0,"max":100,"unit":0.1}},
+"cities":[{"name":"city-1","x":65.3,"y":33.7},
+{"name":"city-2","x":78.9,"y":57.5},
+{"name":"city-3","x":26.6,"y":19.3},
+{"name":"city-4","x":20.9,"y":74.5},
+{"name":"city-5","x":40.9,"y":66.4}]}
