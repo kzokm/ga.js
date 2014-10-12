@@ -24,7 +24,7 @@ for j in [0..capacity * WEIGHT_UNIT]
   m[0].push
     weight: 0
     price: 0
-    items: []
+    selected: []
 
 for i in [1..items.length]
   m.push []
@@ -35,7 +35,7 @@ for i in [1..items.length]
         prev = m[i - 1][j - c]
         weight: prev.weight + c
         price: prev.price + p
-        items: prev.items.concat i
+        selected: prev.selected.concat i
       else
         m[i - 1][j]
 
@@ -44,5 +44,5 @@ result.weight /= WEIGHT_UNIT
 result.price /= PRICE_UNIT
 
 console.info 'uptime: ' + process.uptime()
-console.info 'result: ' + result.items
-console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.items.length}"
+console.info 'result: ' + result.selected
+console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.selected.length}"

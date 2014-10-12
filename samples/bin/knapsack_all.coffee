@@ -16,7 +16,7 @@ class Knapsack
   constructor: (source = {})->
     @weight = source.weight ? 0
     @price = source.price ? 0
-    @items = source.items ? []
+    @selected = source.selected ? []
 
   add: (i)->
     {weight, price} = items[i - 1]
@@ -24,7 +24,7 @@ class Knapsack
       new Knapsack
         weight: @weight + weight
         price: @price + price
-        items: @items.concat i
+        selected: @selected.concat i
 
   resolv: (i = 1)->
     if i < items.length
@@ -38,5 +38,5 @@ max = (m1, m2)->
 
 result = new Knapsack().resolv()
 console.info 'uptime: ' + process.uptime()
-console.info 'result: ' + result.items
-console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.items.length}"
+console.info 'result: ' + result.selected
+console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.selected.length}"
