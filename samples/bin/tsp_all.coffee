@@ -1,4 +1,5 @@
 #!env coffee
+
 {argv} = process
 if argv.length < 3
   path = require 'path'
