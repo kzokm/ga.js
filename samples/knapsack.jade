@@ -1,0 +1,72 @@
+extends _layout
+
+block content
+  script(src='knapsack.js')
+  style
+    :stylus
+
+  h1 Knapsack Problem Resolver
+
+  form
+    h2 Problem Parameter:
+    .input
+      label Knapsack capacity
+      input#capacity(type='number' value='10')
+      | Kg
+
+    .input
+      label Number of Items
+      select#items(name='items')
+        option(value='items_10') 10
+        option(value='items_100') 100
+        option(value='items_1000') 1000
+        option(value='items_10000') 10000
+
+    h2 GA Parameter:
+    .input
+      label Number of Popuration
+      input#N(type='number' value='100')
+
+    .input
+      label Maximum Generation
+      input#G(type='number' value='100')
+
+    .input
+      label Crossover Rate
+      input#Pc(type='number' value='90.0')
+      | %
+
+    .input
+      label Mutation Rate
+      input#Pm(type='number' value='0.5')
+      | %
+
+    .input
+      button#resolv Resolve
+
+  script
+    :coffeescript
+      $('#resolv').on 'click', (e)->
+        e.preventDefault()
+        $.getJSON "data/#{$('#items').val()}.json", (data)->
+          console.log data.params, data.items.length
+          window.knapsack = new Knapsack $('#capacity').val(), data.items
+            .on 'reproduct', (popuration)->
+              console.log 'reproduct', popuration.dump()
+              @popuration = popuration
+            .resolve
+              N: parseInt $('#N').val()
+              G: parseInt $('#G').val()
+              Pc: $('#Pc').val() / 100
+              Pm: $('#Pm').val() / 100
+            , (result)->
+              console.log 'finish', @popuration.dump()
+              console.log result.selected()
+              console.log result.dump()
+      .click()
+
+      GA.Popuration::dump = ->
+        "#{@generationNumber}" +
+          ", best: #{@best().fitness().toFixed 2}" +
+          ", worst: #{@worst().fitness().toFixed 2}" +
+          ", ave: #{@average().toFixed 2}"
