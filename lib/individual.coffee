@@ -9,11 +9,16 @@
 ###
 
 class Individual
-  constructor: (@chromosome, _fitness)->
-    @fitnessFunction = _fitness if _fitness
+  constructor: (@chromosome, fitnessFunction)->
+    @fitnessFunction = fitnessFunction if fitnessFunction?
 
   fitness: ->
     @_fitnessValue ?= @fitnessFunction @chromosome
+
+  mutate: (operator)->
+    @chromosome = operator @chromosome
+    @_fitnessValue = undefined
+    @
 
   @pair: (selector)->
     new Pair @, selector
@@ -24,22 +29,17 @@ class Individual
 
     crossover: (probability, operator, parents = @parents)->
       @offsprings = if Math.random() < probability
-        [c1, c2] = operator.call @,
-          parents[0].chromosome.concat(),
-          parents[1].chromosome.concat()
-        [
-          new @Individual c1
-          new @Individual c2
-        ]
+        operator.apply @, parents.map (i)-> i.chromosome
+          .map (c)=> new @Individual c
       else
-        parents.concat()
+        parents
+          .map (i)=> new @Individual i.chromosome
       @
 
     mutate: (probability, operator, targets = @offsprings)->
-      for i in [0..targets.length - 1]
+      targets.forEach (i)->
         if Math.random() < probability
-          targets[i] = new @Individual operator.call @,
-            targets[i].chromosome
+          i.mutate operator
       @
 
 module.exports = Individual
