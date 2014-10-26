@@ -9,12 +9,37 @@
 ###
 
 class MutationOperator
-  @binaryInvert: ->
-    @replace (gene)-> !gene
+  @booleanInversion: ->
+    @substitution (gene)-> !gene
 
-  @replace: (alleles)-> (chromosome)->
-    locus = Math.floor Math.random() * chromosome.length
-    chromosome[locus] = alleles chromosome[locus]
+  @binaryInversion: ->
+    @substitution (gene)-> 1 - gene
+
+  @substitution: (alleles)-> (chromosome)->
+    p = _randomLocusOf chromosome
+    chromosome[p] = alleles chromosome[p]
     chromosome
+
+  _randomLocusOf = (chromosome)->
+     Math.floor Math.random() * chromosome.length
+
+  _exchange = (c, p1, p2)->
+    temp = c[p1]; c[p1] = c[p2]; c[p2] = temp
+
+  @exchange: -> (chromosome)->
+    p1 = _randomLocusOf chromosome
+    p2 = _randomLocusOf chromosome
+    _exchange chromosome, p1, p2
+    chromosome
+
+  @reverse: -> (chromosome)->
+    p1 = _randomLocusOf chromosome
+    p2 = _randomLocusOf chromosome
+
+    c1 = chromosome.splice 0, Math.min p1, p2
+    c2 = chromosome.splice 0, (Math.abs p1 - p2) + 1
+    c3 = chromosome
+
+    c1.concat c2.reverse(), c3
 
 module.exports = MutationOperator

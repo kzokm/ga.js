@@ -17,26 +17,46 @@ window.GA = require('../lib/index');
 var CrossoverOperator;
 
 CrossoverOperator = (function() {
-  var exchange;
+  var _exchange, _exchangeAfter, _randomLocusOf;
 
   function CrossoverOperator() {}
 
   CrossoverOperator.point = function(n) {
-    return function(c1, c2) {
-      var p, _i, _ref;
-      for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
-        p = Math.floor(Math.random() * c1.length);
-        _ref = [c1.splice(0, p).concat(c2.splice(p)), c2.concat(c1)], c1 = _ref[0], c2 = _ref[1];
-      }
-      return [c1, c2];
-    };
+    if (n === 1) {
+      return function(c1, c2) {
+        return _exchangeAfter(c1, c2, _randomLocusOf(c1));
+      };
+    } else {
+      return function(c1, c2) {
+        var locus;
+        locus = (function() {
+          var _i, _results;
+          _results = [];
+          for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
+            _results.push(_randomLocusOf(c1));
+          }
+          return _results;
+        })();
+        locus.sort(function(a, b) {
+          return a - b;
+        }).forEach(function(p, i) {
+          var _ref;
+          if (i > 0) {
+            p++;
+          }
+          return _ref = _exchangeAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
+        });
+        return [c1, c2];
+      };
+    }
   };
 
-  exchange = function(c1, c2, pos) {
-    var temp;
-    temp = c1[pos];
-    c1[pos] = c2[pos];
-    return c2[pos] = temp;
+  _randomLocusOf = function(c) {
+    return Math.floor(Math.random() * c.length);
+  };
+
+  _exchangeAfter = function(c1, c2, p) {
+    return [c1.slice(0, p).concat(c2.slice(p)), c2.slice(0, p).concat(c1.slice(p))];
   };
 
   CrossoverOperator.uniform = function(probability) {
@@ -45,13 +65,22 @@ CrossoverOperator = (function() {
     }
     return function(c1, c2) {
       var i, _i, _ref;
+      c1 = c1.concat();
+      c2 = c2.concat();
       for (i = _i = 0, _ref = c1.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         if (Math.random() < probability) {
-          exchange(c1, c2, i);
+          _exchange(c1, c2, i);
         }
       }
       return [c1, c2];
     };
+  };
+
+  _exchange = function(c1, c2, pos) {
+    var temp;
+    temp = c1[pos];
+    c1[pos] = c2[pos];
+    return c2[pos] = temp;
   };
 
   return CrossoverOperator;
@@ -73,6 +102,7 @@ module.exports = CrossoverOperator;
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
+'use strict';
 var GA;
 
 GA = (function() {
@@ -116,15 +146,18 @@ var Individual;
 Individual = (function() {
   var Pair;
 
-  function Individual(chromosome, _fitness) {
+  function Individual(chromosome) {
     this.chromosome = chromosome;
-    if (_fitness) {
-      this.fitnessFunction = _fitness;
-    }
   }
 
   Individual.prototype.fitness = function() {
     return this._fitnessValue != null ? this._fitnessValue : this._fitnessValue = this.fitnessFunction(this.chromosome);
+  };
+
+  Individual.prototype.mutate = function(operator) {
+    this.chromosome = operator(this.chromosome);
+    this._fitnessValue = void 0;
+    return this;
   };
 
   Individual.pair = function(selector) {
@@ -138,24 +171,32 @@ Individual = (function() {
     }
 
     Pair.prototype.crossover = function(probability, operator, parents) {
-      var c1, c2, _ref;
       if (parents == null) {
         parents = this.parents;
       }
-      this.offsprings = Math.random() < probability ? ((_ref = operator.call(this, parents[0].chromosome.concat(), parents[1].chromosome.concat()), c1 = _ref[0], c2 = _ref[1], _ref), [new this.Individual(c1), new this.Individual(c2)]) : parents.concat();
+      this.offsprings = Math.random() < probability ? operator.apply(this, parents.map(function(i) {
+        return i.chromosome;
+      })).map((function(_this) {
+        return function(c) {
+          return new _this.Individual(c);
+        };
+      })(this)) : parents.map((function(_this) {
+        return function(i) {
+          return new _this.Individual(i.chromosome);
+        };
+      })(this));
       return this;
     };
 
     Pair.prototype.mutate = function(probability, operator, targets) {
-      var i, _i, _ref;
       if (targets == null) {
         targets = this.offsprings;
       }
-      for (i = _i = 0, _ref = targets.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      targets.forEach(function(i) {
         if (Math.random() < probability) {
-          targets[i] = new this.Individual(operator.call(this, targets[i].chromosome));
+          return i.mutate(operator);
         }
-      }
+      });
       return this;
     };
 
@@ -185,20 +226,61 @@ module.exports = Individual;
 var MutationOperator;
 
 MutationOperator = (function() {
+  var _exchange, _randomLocusOf;
+
   function MutationOperator() {}
 
-  MutationOperator.binaryInvert = function() {
-    return this.replace(function(gene) {
+  MutationOperator.booleanInversion = function() {
+    return this.substitution(function(gene) {
       return !gene;
     });
   };
 
-  MutationOperator.replace = function(alleles) {
+  MutationOperator.binaryInversion = function() {
+    return this.substitution(function(gene) {
+      return 1 - gene;
+    });
+  };
+
+  MutationOperator.substitution = function(alleles) {
     return function(chromosome) {
-      var locus;
-      locus = Math.floor(Math.random() * chromosome.length);
-      chromosome[locus] = alleles(chromosome[locus]);
+      var p;
+      p = _randomLocusOf(chromosome);
+      chromosome[p] = alleles(chromosome[p]);
       return chromosome;
+    };
+  };
+
+  _randomLocusOf = function(chromosome) {
+    return Math.floor(Math.random() * chromosome.length);
+  };
+
+  _exchange = function(c, p1, p2) {
+    var temp;
+    temp = c[p1];
+    c[p1] = c[p2];
+    return c[p2] = temp;
+  };
+
+  MutationOperator.exchange = function() {
+    return function(chromosome) {
+      var p1, p2;
+      p1 = _randomLocusOf(chromosome);
+      p2 = _randomLocusOf(chromosome);
+      _exchange(chromosome, p1, p2);
+      return chromosome;
+    };
+  };
+
+  MutationOperator.reverse = function() {
+    return function(chromosome) {
+      var c1, c2, c3, p1, p2;
+      p1 = _randomLocusOf(chromosome);
+      p2 = _randomLocusOf(chromosome);
+      c1 = chromosome.splice(0, Math.min(p1, p2));
+      c2 = chromosome.splice(0, (Math.abs(p1 - p2)) + 1);
+      c3 = chromosome;
+      return c1.concat(c2.reverse(), c3);
     };
   };
 
