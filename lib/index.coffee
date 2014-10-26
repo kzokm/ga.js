@@ -8,6 +8,8 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
+'use strict'
+
 class GA
   @version: require './version'
   @Resolver: require './resolver'
