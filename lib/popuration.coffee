@@ -11,10 +11,14 @@
 {EventEmitter} = require 'events'
 
 class Popuration extends EventEmitter
-  constructor: (@Individual, @popurationSize) ->
+  constructor: (@Individual, @popurationSize = 0) ->
     @generationNumber = 1
-    @individuals = for [1..popurationSize]
-      new Individual
+    @individuals = if popurationSize > 1
+      for [1..popurationSize]
+        new Individual
+    else
+      popurationSize = 0
+      []
 
   size: ->
     @individuals.length
@@ -26,16 +30,17 @@ class Popuration extends EventEmitter
     @individuals.push individual
     @
 
-  remove: (individual)->
-    index =
-      if typeof individual == 'number'
-        individual
-      else
-        @individuals.indexOf individual
-    (@individuals.splice index, 0)[0] if index >= 0
-
   get: (index)->
+    index = @individuals.length + index if index < 0
     @individuals[index]
+
+  remove: (individual)->
+    if typeof individual == 'number'
+      index = individual
+      index = @individuals.length + index if index < 0
+    else
+      index = @individuals.indexOf individual
+    (@individuals.splice index, 1)[0] if index >= 0
 
   sample: (sampler)->
     switch typeof sampler
@@ -58,10 +63,6 @@ class Popuration extends EventEmitter
     @individuals.forEach operator, @
     @
 
-  some: (operator)->
-    @individuals.some operator, @
-    @
-
   sum: ->
     @individuals.reduce (sum, I)->
       sum += I.fitness()
@@ -70,13 +71,13 @@ class Popuration extends EventEmitter
   average: ->
     @sum() / @size()
 
-  best: (n)->
+  best: ->
     @individuals[0]
 
   top: (n)->
     @individuals.slice 0, n
 
-  worst: (n)->
+  worst: ->
     @individuals[@individuals.length - 1]
 
 module.exports = Popuration
