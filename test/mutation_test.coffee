@@ -11,7 +11,7 @@ describe 'MutationOperator', ->
   random = require './lib/pesudo_random'
     .attach()
 
-  describe '#binaryInversion', ->
+  describe '#binaryInversion()', ->
     mutate = Mutation.binaryInversion()
 
     it 'should return a function', ->
@@ -33,7 +33,7 @@ describe 'MutationOperator', ->
       expect mutate [0, 0, 1]
         .to.deep.equals [0, 0, 0]
 
-  describe '#substitution', ->
+  describe '#substitution()', ->
     mutate = Mutation.substitution (ch)->
       ch.toLowerCase()
 
@@ -46,7 +46,7 @@ describe 'MutationOperator', ->
       expect mutate ['A', 'B', 'C']
         .to.deep.equals ['a', 'B', 'C']
 
-  describe '#exchange', ->
+  describe '#exchange()', ->
     mutate = Mutation.exchange()
 
     it 'should return a function', ->
@@ -68,7 +68,7 @@ describe 'MutationOperator', ->
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equals [1, 4, 3, 2, 5]
 
-  describe '#reverse', ->
+  describe '#reverse()', ->
     mutate = Mutation.reverse()
 
     it 'should return a function', ->

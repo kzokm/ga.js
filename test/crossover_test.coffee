@@ -72,7 +72,7 @@ describe 'CrossoverOperator', ->
       expect crossover ['a', 'b', 'c', 'd', 'e'], ['A', 'B', 'C', 'D', 'E']
         .to.deep.equals [['a', 'B', 'C', 'D', 'e'], ['A', 'b', 'c', 'd', 'E']]
 
-  describe '#uniform', ->
+  describe '#uniform()', ->
     crossover = Crossover.uniform()
     probability = 0.5
     YES = random.MAX - probability
