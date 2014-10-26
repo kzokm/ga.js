@@ -8,31 +8,25 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
-class MutationOperator
-  @booleanInversion: ->
+MutationOperator =
+  booleanInversion: ->
     @substitution (gene)-> !gene
 
-  @binaryInversion: ->
+  binaryInversion: ->
     @substitution (gene)-> 1 - gene
 
-  @substitution: (alleles)-> (chromosome)->
+  substitution: (alleles)-> (chromosome)->
     p = _randomLocusOf chromosome
     chromosome[p] = alleles chromosome[p]
     chromosome
 
-  _randomLocusOf = (chromosome)->
-     Math.floor Math.random() * chromosome.length
-
-  _exchange = (c, p1, p2)->
-    temp = c[p1]; c[p1] = c[p2]; c[p2] = temp
-
-  @exchange: -> (chromosome)->
+  exchange: -> (chromosome)->
     p1 = _randomLocusOf chromosome
     p2 = _randomLocusOf chromosome
     _exchange chromosome, p1, p2
     chromosome
 
-  @reverse: -> (chromosome)->
+  reverse: -> (chromosome)->
     p1 = _randomLocusOf chromosome
     p2 = _randomLocusOf chromosome
 
@@ -41,5 +35,13 @@ class MutationOperator
     c3 = chromosome
 
     c1.concat c2.reverse(), c3
+
+
+_randomLocusOf = (chromosome)->
+   Math.floor Math.random() * chromosome.length
+
+_exchange = (c, p1, p2)->
+  temp = c[p1]; c[p1] = c[p2]; c[p2] = temp
+
 
 module.exports = MutationOperator

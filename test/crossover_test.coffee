@@ -1,10 +1,12 @@
 'use strict'
-{expect, assert} = require 'chai'
-
-Crossover = require '../lib/crossover_operator'
-random = require './lib/pesudo_random'
+{expect} = require 'chai'
 
 describe 'CrossoverOperator', ->
+  Crossover = require '../lib/crossover_operator'
+  before ->
+    expect Crossover
+      .to.be.a 'object'
+
   random = require './lib/pesudo_random'
     .attach()
 

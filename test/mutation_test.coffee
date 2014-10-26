@@ -2,9 +2,12 @@
 
 {expect} = require 'chai'
 
-Mutation = require '../lib/mutation_operator'
-
 describe 'MutationOperator', ->
+  Mutation = require '../lib/mutation_operator'
+  before ->
+    expect Mutation
+      .to.be.a 'object'
+
   random = require './lib/pesudo_random'
     .attach()
 
