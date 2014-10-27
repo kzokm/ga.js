@@ -35,13 +35,10 @@ CrossoverOperator =
 _randomLocusOf = (c)->
    Math.floor Math.random() * c.length
 
-_exchangeAfter = (c1, c2, p)->
-   [
-     c1.slice 0, p
-       .concat c2.slice p
-     c2.slice 0, p
-       .concat c1.slice p
-   ]
+_exchangeAfter = (c1, c2, p)-> [
+    c1[...p].concat c2[p...]
+    c2[...p].concat c1[p...]
+  ]
 
 _exchange = (c1, c2, pos)->
   temp = c1[pos]; c1[pos] = c2[pos]; c2[pos] = temp
