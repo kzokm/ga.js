@@ -6,8 +6,8 @@ pesudoRandomValues = []
 pesudoRandom = ->
   pesudoRandomValues.shift() ? Math._random()
 
-pesudoRandom.MIN = 0
-pesudoRandom.MAX = 0.99999999
+pesudoRandom.MIN_VALUE = 0
+pesudoRandom.MAX_VALUE = 0.99999999
 
 pesudoRandom.push = ->
   pesudoRandomValues.push arguments...

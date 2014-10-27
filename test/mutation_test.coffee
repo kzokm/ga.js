@@ -4,14 +4,14 @@
 
 describe 'MutationOperator', ->
   Mutation = require '../lib/mutation_operator'
-  before ->
+  it 'should be a object', ->
     expect Mutation
       .to.be.a 'object'
 
   random = require './lib/pesudo_random'
     .attach()
 
-  describe '#binaryInversion()', ->
+  describe '.binaryInversion()', ->
     mutate = Mutation.binaryInversion()
 
     it 'should return a function', ->
@@ -29,11 +29,11 @@ describe 'MutationOperator', ->
         .to.deep.equals [1, 0, 1]
 
     it 'can mutate last gene', ->
-      random.set random.MAX
+      random.set random.MAX_VALUE
       expect mutate [0, 0, 1]
         .to.deep.equals [0, 0, 0]
 
-  describe '#substitution()', ->
+  describe '.substitution()', ->
     mutate = Mutation.substitution (ch)->
       ch.toLowerCase()
 
@@ -46,7 +46,7 @@ describe 'MutationOperator', ->
       expect mutate ['A', 'B', 'C']
         .to.deep.equals ['a', 'B', 'C']
 
-  describe '#exchange()', ->
+  describe '.exchange()', ->
     mutate = Mutation.exchange()
 
     it 'should return a function', ->
@@ -54,7 +54,7 @@ describe 'MutationOperator', ->
         .to.be.a 'function'
 
     it 'can exchange 1st and last genes', ->
-      random.set 0/5, random.MAX
+      random.set 0/5, random.MAX_VALUE
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equals [5, 2, 3, 4, 1]
 
@@ -68,7 +68,7 @@ describe 'MutationOperator', ->
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equals [1, 4, 3, 2, 5]
 
-  describe '#reverse()', ->
+  describe '.reverse()', ->
     mutate = Mutation.reverse()
 
     it 'should return a function', ->
@@ -76,11 +76,11 @@ describe 'MutationOperator', ->
         .to.be.a 'function'
 
     it 'can reverse all genes', ->
-      random.set 0, random.MAX
+      random.set 0, random.MAX_VALUE
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equals [5, 4, 3, 2, 1]
 
-      random.set random.MAX, 0
+      random.set random.MAX_VALUE, 0
       expect mutate [5, 4, 3, 2, 1]
         .to.deep.equals [1, 2, 3, 4, 5]
 

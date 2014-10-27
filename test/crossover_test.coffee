@@ -3,7 +3,7 @@
 
 describe 'CrossoverOperator', ->
   Crossover = require '../lib/crossover_operator'
-  before ->
+  it 'should be a object', ->
     expect Crossover
       .to.be.a 'object'
 
@@ -17,10 +17,10 @@ describe 'CrossoverOperator', ->
       .to.deep.equals before
     result
 
-  describe '#point 1', ->
+  describe '.point 1', ->
     crossover = Crossover.point 1
 
-    before ->
+    it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
       crossover = wrap crossover
@@ -36,14 +36,14 @@ describe 'CrossoverOperator', ->
         .to.deep.equals [['A', 'b', 'c', 'd', 'e'], ['a', 'B', 'C', 'D', 'E']]
 
     it 'can crossover last gene only', ->
-      random.push random.MAX
+      random.push random.MAX_VALUE
       expect crossover ['A', 'B', 'C', 'D', 'E'], ['a', 'b', 'c', 'd', 'e']
         .to.deep.equals [['A', 'B', 'C', 'D', 'e'], ['a', 'b', 'c', 'd', 'E']]
 
-  describe '#point 2', ->
+  describe '.point 2', ->
     crossover = Crossover.point 2
 
-    before ->
+    it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
       crossover = wrap crossover
@@ -54,12 +54,12 @@ describe 'CrossoverOperator', ->
         .to.deep.equals [['a', 'B', 'C', 'D', 'E'], ['A', 'b', 'c', 'd', 'e']]
 
     it 'can crossover last gene only', ->
-      random.push 4/5, random.MAX
+      random.push 4/5, random.MAX_VALUE
       expect crossover ['A', 'B', 'C', 'D', 'E'], ['a', 'b', 'c', 'd', 'e']
         .to.deep.equals [['A', 'B', 'C', 'D', 'e'], ['a', 'b', 'c', 'd', 'E']]
 
     it 'can crossover all genes', ->
-      random.push 0, random.MAX
+      random.push 0, random.MAX_VALUE
       expect crossover ['A', 'B', 'C', 'D', 'E'], ['a', 'b', 'c', 'd', 'e']
         .to.deep.equals [['a', 'b', 'c', 'd', 'e'], ['A', 'B', 'C', 'D', 'E']]
 
@@ -72,13 +72,13 @@ describe 'CrossoverOperator', ->
       expect crossover ['a', 'b', 'c', 'd', 'e'], ['A', 'B', 'C', 'D', 'E']
         .to.deep.equals [['a', 'B', 'C', 'D', 'e'], ['A', 'b', 'c', 'd', 'E']]
 
-  describe '#uniform()', ->
+  describe '.uniform()', ->
     crossover = Crossover.uniform()
     probability = 0.5
-    YES = random.MAX - probability
+    YES = random.MAX_VALUE - probability
     NO = probability
 
-    before ->
+    it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
       crossover = wrap crossover
@@ -103,7 +103,7 @@ describe 'CrossoverOperator', ->
       expect crossover ['A', 'B', 'C', 'D', 'E'], ['a', 'b', 'c', 'd', 'e']
         .to.deep.equals [['a', 'b', 'c', 'd', 'e'], ['A', 'B', 'C', 'D', 'E']]
 
-  describe '#uniform 0.0', ->
+  describe '.uniform 0.0', ->
     crossover = Crossover.uniform 0.0
 
     it 'should never crossover', ->
@@ -111,7 +111,7 @@ describe 'CrossoverOperator', ->
         expect crossover ['A', 'B', 'C', 'D', 'E'], ['a', 'b', 'c', 'd', 'e']
           .to.deep.equals [['A', 'B', 'C', 'D', 'E'], ['a', 'b', 'c', 'd', 'e']]
 
-  describe '#uniform 1.0', ->
+  describe '.uniform 1.0', ->
     crossover = Crossover.uniform 1.0
 
     it 'should always crossover all genes', ->
