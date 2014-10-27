@@ -3,7 +3,7 @@
 
 describe 'Individual', ->
   Individual = require '../lib/individual'
-  before ->
+  it 'should be a function', ->
     expect Individual
       .to.be.a 'function'
 

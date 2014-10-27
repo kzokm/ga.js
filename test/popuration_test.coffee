@@ -3,7 +3,7 @@
 
 describe 'Popuration', ->
   Popuration = require '../lib/popuration'
-  before ->
+  it 'should be a function', ->
     expect Popuration
       .to.be.a 'function'
 
