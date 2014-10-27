@@ -1,5 +1,5 @@
 'use strict'
-{expect, assert} = require 'chai'
+{expect,AssertionError} = require 'chai'
 
 describe 'Individual.pair', ->
   Popuration = require '../lib/popuration'
@@ -75,7 +75,7 @@ describe 'Individual.pair', ->
 
       it 'should contains clone of parents if not enough probability', ->
         pair.crossover 0, ->
-          assert.false
+          throw new AssertionError 'crossover operator should not call'
 
         expect pair.offsprings
           .to.be.a 'array'
@@ -119,3 +119,7 @@ describe 'Individual.pair', ->
         .to.deep.equal [1, 1, 1, 1]
       expect offspring.fitness()
         .to.equal 4
+
+    it 'should not work if not enough probability', ->
+      pair.mutate 0, ->
+        throw new AssertionError 'mutation operator should not call'
