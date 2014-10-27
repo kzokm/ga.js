@@ -31,7 +31,7 @@ describe 'Selector', ->
     sum = popuration.sum()
     before ->
       expect sum
-        .to.equals 15
+        .to.equal 15
 
     describe '#next', ->
       it 'should return a individual', ->

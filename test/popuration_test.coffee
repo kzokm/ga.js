@@ -33,7 +33,7 @@ describe 'Popuration', ->
     it 'should return number of individuals in a popuration', ->
       popuration = new Popuration Individual, 100
       expect popuration.size()
-        .to.equals popuration.individuals.length
+        .to.equal popuration.individuals.length
 
 
   describe '#add()', ->

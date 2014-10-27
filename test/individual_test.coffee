@@ -8,7 +8,7 @@ describe 'Individual', ->
       .to.be.a 'function'
 
   describe '#chromosome', ->
-    it 'should have property chromosome assigned by constuctor', ->
+    it 'should be a chromosome value assigned by constuctor', ->
       individual = new Individual 'ABC'
       expect individual
         .to.have.property 'chromosome', 'ABC'
@@ -20,12 +20,12 @@ describe 'Individual', ->
     it 'should return fitness value calculated by fitness function', ->
       individual = new IndividualWithFitnessFunction 'ABC'
       expect individual.fitness()
-        .to.equals 'f(ABC)'
+        .to.equal 'f(ABC)'
 
     it 'can return personalized fitness value instead of prototyped function', ->
       individual = new IndividualWithFitnessFunction 'ABC', -> 999
       expect individual.fitness()
-        .to.equals 999
+        .to.equal 999
 
     it 'should throw error if not defined fitnessFunction', ->
       expect -> (new Individual 'ABC').fitness()
@@ -34,12 +34,12 @@ describe 'Individual', ->
     it 'should cache fitness value', ->
       individual = new IndividualWithFitnessFunction 'ABC'
       expect individual.fitness()
-        .to.equals 'f(ABC)'
+        .to.equal 'f(ABC)'
 
       individual.chromosome = 'XYZ'
       expect individual.fitness()
-        .to.equals 'f(ABC)'
+        .to.equal 'f(ABC)'
 
       individual._fitnessValue = undefined
       expect individual.fitness()
-        .to.equals 'f(XYZ)'
+        .to.equal 'f(XYZ)'
