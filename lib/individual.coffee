@@ -21,9 +21,9 @@ class Individual
     @
 
   @pair: (selector)->
-    new Pair @, selector
+    new @Pair @, selector
 
-  class Pair
+  @Pair: class
     constructor: (@Individual, selector)->
       @parents = [selector.next(), selector.next()]
 
@@ -33,7 +33,7 @@ class Individual
           .map (c)=> new @Individual c
       else
         parents
-          .map (i)=> new @Individual i.chromosome
+          .map (i)=> new @Individual i.chromosome[...]
       @
 
     mutate: (probability, operator, targets = @offsprings)->
