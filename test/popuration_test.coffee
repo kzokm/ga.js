@@ -28,10 +28,12 @@ describe 'Popuration', ->
       expect i
         .to.be.a.instanceof Individual
 
+  it 'should have property generationNumber initialized by 0', ->
+      expect popuration
+        .to.have.property 'generationNumber', 0
 
   describe '#size()', ->
     it 'should return number of individuals in a popuration', ->
-      popuration = new Popuration Individual, 100
       expect popuration.size()
         .to.equal popuration.individuals.length
 

@@ -11,13 +11,12 @@
 {EventEmitter} = require 'events'
 
 class Popuration extends EventEmitter
-  constructor: (@Individual, @popurationSize = 0) ->
-    @generationNumber = 1
+  constructor: (@Individual, popurationSize = 0) ->
+    @generationNumber = 0
     @individuals = if popurationSize > 1
       for [1..popurationSize]
         new Individual
     else
-      popurationSize = 0
       []
 
   size: ->

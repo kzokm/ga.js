@@ -11,33 +11,40 @@
 {EventEmitter} = require 'events'
 
 class Resolver extends EventEmitter
-  resolve: (popuration, config, callback)->
+  constructor: (@reproduct, @config = {})->
+    unless typeof reproduct == 'function'
+      throw new TypeError "#{@reproduct} is not a function"
+    @config.terminate ?= []
+
+  resolve: (popuration, config = {}, callback_on_result)->
     if typeof config == 'function'
-      callback = config
+      callback_on_result = config
       config = {}
 
-    reproduct = config.reproduct
-
-    terminates = [].concat config.terminate ? []
+    terminates = [].concat config.terminate ?= @config.terminate
       .map (fn)->
         if typeof fn == 'number'
           do (limit = fn)-> (popuration)->
             popuration.generationNumber >= limit
         else
           fn
+    terminates.unshift => !@processing
+    @processing = true
 
     popuration.sort()
-    setTimeout process = do (resolver = @)-> ->
-      popuration = reproduct.call resolver, popuration
-        .sort()
-      popuration.generationNumber++
-
-      resolver.emit 'reproduct', popuration
-      if (terminates.some (fn)-> fn.call resolver, popuration)
-        resolver.emit 'terminate', popuration, popuration.best()
-        callback?.call resolver, popuration.best()
+    setTimeout process = =>
+      if @processing
+        popuration = (@reproduct.call @, popuration, config) ? popuration
+          .sort()
+        popuration.generationNumber++
+        @emit 'reproduct', popuration, config
+      if (terminates.some (fn)-> fn.call @, popuration)
+        @emit 'terminate', popuration, config
+        callback_on_result?.call @, popuration, config
       else
         setTimeout process
     @
+  terminate: ->
+    @processing = false
 
 module.exports = Resolver
