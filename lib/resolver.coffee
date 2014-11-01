@@ -21,7 +21,10 @@ class Resolver extends EventEmitter
       callback_on_result = config
       config = {}
 
-    terminates = [].concat config.terminate ?= @config.terminate
+    for key of @config
+      config[key] ?= @config[key]
+
+    terminates = [].concat config.terminate
       .map (fn)->
         if typeof fn == 'number'
           do (limit = fn)-> (popuration)->
@@ -32,7 +35,7 @@ class Resolver extends EventEmitter
     @processing = true
 
     popuration.sort()
-    setTimeout process = =>
+    process = =>
       if @processing
         popuration = (@reproduct.call @, popuration, config) ? popuration
           .sort()
@@ -42,8 +45,10 @@ class Resolver extends EventEmitter
         @emit 'terminate', popuration, config
         callback_on_result?.call @, popuration, config
       else
-        setTimeout process
+        setTimeout process, config.intervalMillis
+    setTimeout process, config.intervalMillis
     @
+
   terminate: ->
     @processing = false
 

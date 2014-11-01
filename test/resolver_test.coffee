@@ -23,7 +23,7 @@ describe 'Resolver', ->
       expect resolver.resolve popuration, terminate: 0
         .to.equal resolver
 
-    it 'should invoke reproduct and call event handler each processing', (done)->
+    it 'should invoke reproduction function and call event handler each processing', (done)->
       config = terminate: terminate = 5
       numReprocucted = numReprocuctHandlerCalled = numTerminateHandlerCalled = 0
 
@@ -63,6 +63,21 @@ describe 'Resolver', ->
           .that.equals numReprocuctHandlerCalled
         expect numTerminateHandlerCalled
           .to.equal 1
+        done()
+
+    it 'should repeat invoking reprodution function each interval time.', (done)->
+      count = 1
+      prev = undefined
+      new Resolver ->
+          current = new Date().getTime()
+          if prev
+            expect current - prev
+              .to.be.above 100
+              .to.be.below 120
+          prev = current
+          popuration
+        , intervalMillis: 100, terminate: 10
+      .resolve popuration, ->
         done()
 
     it 'should terminate initiazlied condition', (done)->
