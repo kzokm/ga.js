@@ -11,10 +11,13 @@
 {EventEmitter} = require 'events'
 
 class Resolver extends EventEmitter
-  constructor: (@reproduct, @config = {})->
-    unless typeof reproduct == 'function'
-      throw new TypeError "#{@reproduct} is not a function"
-    @config.terminate ?= []
+  constructor: (reproduct, config = {})->
+    if typeof reproduct == 'function'
+      config.reproduct = reproduct
+    else
+      config = reproduct ? {}
+    config.reproduct ?= @reproduct
+    @config = config
 
   resolve: (popuration, config = {}, callback_on_result)->
     if typeof config == 'function'
@@ -23,6 +26,9 @@ class Resolver extends EventEmitter
 
     for key of @config
       config[key] ?= @config[key]
+
+    unless typeof config.reproduct == 'function'
+      throw new TypeError "#{config.reproduct} is not a function"
 
     terminates = [].concat config.terminate
       .map (fn)->
@@ -37,13 +43,13 @@ class Resolver extends EventEmitter
     popuration.sort()
     process = =>
       if @processing
-        popuration = (@reproduct.call @, popuration, config) ? popuration
+        popuration = (config.reproduct.call @, popuration, config) ? popuration
           .sort()
         popuration.generationNumber++
         @emit 'reproduct', popuration, config
       if (terminates.some (fn)-> fn.call @, popuration)
         @emit 'terminate', popuration, config
-        callback_on_result?.call @, popuration, config
+        callback_on_result?.call @, popuration.best(), popuration, config
       else
         setTimeout process, config.intervalMillis
     setTimeout process, config.intervalMillis

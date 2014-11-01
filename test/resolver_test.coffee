@@ -9,19 +9,22 @@ describe 'Resolver', ->
 
   Popuration = require '../lib/popuration'
 
-  it 'should throw error if reproduct handler is not function', ->
-    expect Resolver::constructor
-      .to.throw TypeError
-
   describe '#resolve', ->
     popuration = undefined
     beforeEach ->
       popuration = new Popuration
 
     it 'should return resolver it self', ->
-      resolver = new Resolver ->
-      expect resolver.resolve popuration, terminate: 0
-        .to.equal resolver
+      resolver = new Resolver
+      expect resolver.resolve popuration,
+        reproduct: ->
+        terminate: 0
+      .to.equal resolver
+
+    it 'should throw error if reproduct handler is not function', ->
+      resolver = new Resolver
+      expect -> resolver.resolve()
+        .to.throw TypeError
 
     it 'should invoke reproduction function and call event handler each processing', (done)->
       config = terminate: terminate = 5
@@ -56,7 +59,7 @@ describe 'Resolver', ->
         expect @
           .to.equal resolver
         expect Array::slice.apply arguments
-          .to.deep.equal [popuration, config]
+          .to.deep.equal [popuration.best(), popuration, config]
         expect popuration.generationNumber
           .to.equal terminate
           .that.equals numReprocucted
@@ -66,9 +69,10 @@ describe 'Resolver', ->
         done()
 
     it 'should repeat invoking reprodution function each interval time.', (done)->
-      count = 1
       prev = undefined
-      new Resolver ->
+      new Resolver
+        intervalMillis: 100
+        reproduct: ->
           current = new Date().getTime()
           if prev
             expect current - prev
@@ -76,7 +80,7 @@ describe 'Resolver', ->
               .to.be.below 120
           prev = current
           popuration
-        , intervalMillis: 100, terminate: 10
+        terminate: 10
       .resolve popuration, ->
         done()
 
