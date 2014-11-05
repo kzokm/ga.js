@@ -38,24 +38,24 @@ class Resolver extends EventEmitter
         else
           fn
     terminates.unshift => !@processing
-    @processing = true
 
     popuration.sort()
+    popuration.generationNumber = generationNumber = 0
     process = =>
       if @processing
-        popuration = (config.reproduct.call @, popuration, config) ? popuration
+        popuration = ((config.reproduct.call @, popuration, config) ? popuration)
           .sort()
-        popuration.generationNumber++
+        popuration.generationNumber = ++generationNumber
         @emit 'reproduct', popuration, config
       if (terminates.some (fn)-> fn.call @, popuration)
         @emit 'terminate', popuration, config
         callback_on_result?.call @, popuration.best(), popuration, config
       else
-        setTimeout process, config.intervalMillis
-    setTimeout process, config.intervalMillis
+        @processing = setTimeout process, config.intervalMillis
+    @processing = setTimeout process, config.intervalMillis
     @
 
   terminate: ->
-    @processing = false
+    @processing = undefined
 
 module.exports = Resolver
