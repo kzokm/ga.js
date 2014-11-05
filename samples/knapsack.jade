@@ -11,7 +11,7 @@ block content
     h2 Problem Parameter:
     .input
       label Knapsack capacity
-      input#capacity(type='number' value='10')
+      input#C(type='number' value='100')
       | Kg
 
     .input
@@ -19,17 +19,17 @@ block content
       select#items(name='items')
         option(value='items_10') 10
         option(value='items_100') 100
-        option(value='items_1000') 1000
+        option(value='items_1000' selected) 1000
         option(value='items_10000') 10000
 
     h2 GA Parameter:
     .input
       label Number of Popuration
-      input#N(type='number' value='100')
+      input#N(type='number' value='300')
 
     .input
       label Maximum Generation
-      input#G(type='number' value='1000')
+      input#G(type='number' value='500')
 
     .input
       label Crossover Rate
@@ -38,32 +38,100 @@ block content
 
     .input
       label Mutation Rate
-      input#Pm(type='number' value='0.5')
+      input#Pm(type='number' value='5.0')
       | %
 
     .input
       button#resolv Resolve
+      button#terminate Terminate
+
+  h2 Processing...
+  ul#dump
+    li
+      label Generation Number:
+      span#g
+
+    li
+      label Best
+      span#best
+
+  svg
 
   script
     :coffeescript
+      class Chart
+        constructor: (element)->
+          @svg = d3.select element
+          @resize()
+          @capacity = parseInt $('#C').val()
+          @max = @capacity * 2
+          @histogram = d3.layout.histogram()
+            .range [0, @max]
+            .bins d3.range 0, @max, 1
+            .value (d)-> d.price
+
+          $(window).on 'resize', =>
+            @resize()
+
+        container = $('#container')[0]
+
+        resize: ->
+          @svg.attr
+            width: @width = window.innerWidth - container.offsetLeft * 2
+            height: @height = window.innerHeight - container.offsetTop * 2 - @svg[0][0].offsetTop
+
+        update: (popuration)->
+          @svg.selectAll 'rect'
+            .remove()
+
+          dx = @width / @max
+          @svg.selectAll 'rect'
+            .data @histogram popuration.individuals
+            .enter()
+            .append 'rect'
+            .attr
+              x: (d)-> d.x * dx
+              y: (d)=> @height - d.y * 10
+              width: (d)-> d.dx * dx
+              height: (d)-> d.y * 10
+              fill: '#888'
+
+      chart = new Chart 'svg'
+
+      dump =
+        update: (popuration)->
+          @g.text popuration.generationNumber
+          @best.text popuration.best().dump()
+        g: $('#g')
+        best: $('#best')
+
+      knapsack = undefined
+
       $('#resolv').on 'click', (e)->
         e.preventDefault()
         $.getJSON "data/#{$('#items').val()}.json", (data)->
           console.log data.params, data.items.length
-          window.knapsack = new Knapsack $('#capacity').val(), data.items
+          knapsack?.terminate()
+          knapsack = new Knapsack (parseInt $('#C').val()), data.items
             .on 'reproduct', (popuration)->
               console.log 'reproduct', popuration.dump()
-              @popuration = popuration
+              chart.update popuration
+              dump.update popuration
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()
               Pc: $('#Pc').val() / 100
               Pm: $('#Pm').val() / 100
-            , (result)->
-              console.log 'finish', @popuration.dump()
+              #intervalMillis: 1000
+            , (result, popuration)->
+              console.log 'finish', popuration.dump()
               console.log result.selected()
               console.log result.dump()
-      .click()
+
+      $('#terminate').on 'click', (e)->
+        e.preventDefault()
+        knapsack?.terminate()
+        knapsack = undefined
 
       GA.Popuration::dump = ->
         "#{@generationNumber}" +

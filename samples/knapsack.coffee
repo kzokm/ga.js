@@ -1,10 +1,11 @@
 
 class @Knapsack extends GA.Resolver
   constructor: (capacity, items)->
+    super
     class @Individual extends GA.Individual
       constructor: (chromosome)->
         chromosome ?= for [1..items.length]
-          Math.random() * items.length < 2
+          Math.random() * items.length < 3
         super chromosome
 
       fitnessFunction: ->
@@ -14,7 +15,9 @@ class @Knapsack extends GA.Resolver
             @weight += items[i].weight
             @price += items[i].price
           break if @weight == capacity
-        @price + 0.1
+        @price + @finessOffset
+
+      finessOffset: 0.1
 
       selected: ->
         amount = 0
@@ -28,28 +31,27 @@ class @Knapsack extends GA.Resolver
           .sort (a, b)-> a - b
 
       dump: ->
-        "amount prices: #{@price.toFixed 2}, #{@weight.toFixed 1}Kg of #{@selected().length}"
-
+        "amount prices: $#{@price.toFixed 2}, #{@weight.toFixed 1}Kg of [#{@selected()}] / #{@selected().length}"
 
   resolve: (config, callback)->
     crossover = GA.Crossover.point 2
-    mutator = GA.Mutation.binaryInvert()
+    mutator = GA.Mutation.binaryInversion()
 
-    super (new GA.Popuration @Individual, config.N),
-      reproduct: (popuration)->
-        selector = GA.Selector.roulette popuration
-        elites = popuration.best()
-        offsprings = for [1..popuration.size() / 2]
-          @Individual.pair selector
-            .crossover config.Pc, crossover
-            .mutate config.Pm, mutator
-            .offsprings
+    config.reproduct = (popuration)->
+      selector = GA.Selector.roulette popuration
+      elites = popuration.best()
+      offsprings = for [1..popuration.size() / 2]
+        @Individual.pair selector
+          .crossover config.Pc, crossover
+          .mutate config.Pm, mutator
+          .offsprings
+      popuration.set [].concat offsprings...
+      popuration.add elites
 
-        popuration.set Array::concat.apply [], offsprings
-        popuration.add elites
-      terminate: [
+    config.terminate = [
         config.G
         (popuration)->
           popuration.best().fitness() == popuration.average()
       ]
-      , callback
+
+    super (new GA.Popuration @Individual, config.N), config, callback
