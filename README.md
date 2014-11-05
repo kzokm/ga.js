@@ -1,4 +1,4 @@
-# Some samples of Genetic Algorithm
+# Genetic Algorithm API for JavaScript
 
 ## License
 (The MIT License)

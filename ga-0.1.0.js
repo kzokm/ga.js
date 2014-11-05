@@ -7,21 +7,17 @@ window.GA = require('../lib/index');
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var CrossoverOperator;
+var CrossoverOperator, _exchange, _exchangeAfter, _randomLocusOf;
 
-CrossoverOperator = (function() {
-  var _exchange, _exchangeAfter, _randomLocusOf;
-
-  function CrossoverOperator() {}
-
-  CrossoverOperator.point = function(n) {
+CrossoverOperator = {
+  point: function(n) {
     if (n === 1) {
       return function(c1, c2) {
         return _exchangeAfter(c1, c2, _randomLocusOf(c1));
@@ -49,17 +45,8 @@ CrossoverOperator = (function() {
         return [c1, c2];
       };
     }
-  };
-
-  _randomLocusOf = function(c) {
-    return Math.floor(Math.random() * c.length);
-  };
-
-  _exchangeAfter = function(c1, c2, p) {
-    return [c1.slice(0, p).concat(c2.slice(p)), c2.slice(0, p).concat(c1.slice(p))];
-  };
-
-  CrossoverOperator.uniform = function(probability) {
+  },
+  uniform: function(probability) {
     if (probability == null) {
       probability = 0.5;
     }
@@ -74,18 +61,23 @@ CrossoverOperator = (function() {
       }
       return [c1, c2];
     };
-  };
+  }
+};
 
-  _exchange = function(c1, c2, pos) {
-    var temp;
-    temp = c1[pos];
-    c1[pos] = c2[pos];
-    return c2[pos] = temp;
-  };
+_randomLocusOf = function(c) {
+  return Math.floor(Math.random() * c.length);
+};
 
-  return CrossoverOperator;
+_exchangeAfter = function(c1, c2, p) {
+  return [c1.slice(0, p).concat(c2.slice(p)), c2.slice(0, p).concat(c1.slice(p))];
+};
 
-})();
+_exchange = function(c1, c2, pos) {
+  var temp;
+  temp = c1[pos];
+  c1[pos] = c2[pos];
+  return c2[pos] = temp;
+};
 
 module.exports = CrossoverOperator;
 
@@ -95,7 +87,7 @@ module.exports = CrossoverOperator;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
@@ -134,7 +126,7 @@ module.exports = GA;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
@@ -144,10 +136,11 @@ module.exports = GA;
 var Individual;
 
 Individual = (function() {
-  var Pair;
-
-  function Individual(chromosome) {
+  function Individual(chromosome, fitnessFunction) {
     this.chromosome = chromosome;
+    if (fitnessFunction != null) {
+      this.fitnessFunction = fitnessFunction;
+    }
   }
 
   Individual.prototype.fitness = function() {
@@ -161,16 +154,16 @@ Individual = (function() {
   };
 
   Individual.pair = function(selector) {
-    return new Pair(this, selector);
+    return new this.Pair(this, selector);
   };
 
-  Pair = (function() {
-    function Pair(Individual, selector) {
+  Individual.Pair = (function() {
+    function _Class(Individual, selector) {
       this.Individual = Individual;
       this.parents = [selector.next(), selector.next()];
     }
 
-    Pair.prototype.crossover = function(probability, operator, parents) {
+    _Class.prototype.crossover = function(probability, operator, parents) {
       if (parents == null) {
         parents = this.parents;
       }
@@ -182,13 +175,13 @@ Individual = (function() {
         };
       })(this)) : parents.map((function(_this) {
         return function(i) {
-          return new _this.Individual(i.chromosome);
+          return new _this.Individual(i.chromosome.slice(0));
         };
       })(this));
       return this;
     };
 
-    Pair.prototype.mutate = function(probability, operator, targets) {
+    _Class.prototype.mutate = function(probability, operator, targets) {
       if (targets == null) {
         targets = this.offsprings;
       }
@@ -200,7 +193,7 @@ Individual = (function() {
       return this;
     };
 
-    return Pair;
+    return _Class;
 
   })();
 
@@ -216,53 +209,35 @@ module.exports = Individual;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var MutationOperator;
+var MutationOperator, _exchange, _randomLocusOf;
 
-MutationOperator = (function() {
-  var _exchange, _randomLocusOf;
-
-  function MutationOperator() {}
-
-  MutationOperator.booleanInversion = function() {
+MutationOperator = {
+  booleanInversion: function() {
     return this.substitution(function(gene) {
       return !gene;
     });
-  };
-
-  MutationOperator.binaryInversion = function() {
+  },
+  binaryInversion: function() {
     return this.substitution(function(gene) {
       return 1 - gene;
     });
-  };
-
-  MutationOperator.substitution = function(alleles) {
+  },
+  substitution: function(alleles) {
     return function(chromosome) {
       var p;
       p = _randomLocusOf(chromosome);
       chromosome[p] = alleles(chromosome[p]);
       return chromosome;
     };
-  };
-
-  _randomLocusOf = function(chromosome) {
-    return Math.floor(Math.random() * chromosome.length);
-  };
-
-  _exchange = function(c, p1, p2) {
-    var temp;
-    temp = c[p1];
-    c[p1] = c[p2];
-    return c[p2] = temp;
-  };
-
-  MutationOperator.exchange = function() {
+  },
+  exchange: function() {
     return function(chromosome) {
       var p1, p2;
       p1 = _randomLocusOf(chromosome);
@@ -270,9 +245,8 @@ MutationOperator = (function() {
       _exchange(chromosome, p1, p2);
       return chromosome;
     };
-  };
-
-  MutationOperator.reverse = function() {
+  },
+  reverse: function() {
     return function(chromosome) {
       var c1, c2, c3, p1, p2;
       p1 = _randomLocusOf(chromosome);
@@ -282,11 +256,19 @@ MutationOperator = (function() {
       c3 = chromosome;
       return c1.concat(c2.reverse(), c3);
     };
-  };
+  }
+};
 
-  return MutationOperator;
+_randomLocusOf = function(chromosome) {
+  return Math.floor(Math.random() * chromosome.length);
+};
 
-})();
+_exchange = function(c, p1, p2) {
+  var temp;
+  temp = c[p1];
+  c[p1] = c[p2];
+  return c[p2] = temp;
+};
 
 module.exports = MutationOperator;
 
@@ -296,7 +278,7 @@ module.exports = MutationOperator;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
@@ -314,15 +296,21 @@ Popuration = (function(_super) {
 
   function Popuration(Individual, popurationSize) {
     this.Individual = Individual;
-    this.popurationSize = popurationSize;
-    this.generationNumber = 1;
+    if (popurationSize == null) {
+      popurationSize = 0;
+    }
+    this.generationNumber = 0;
     this.individuals = (function() {
       var _i, _results;
-      _results = [];
-      for (_i = 1; 1 <= popurationSize ? _i <= popurationSize : _i >= popurationSize; 1 <= popurationSize ? _i++ : _i--) {
-        _results.push(new Individual);
+      if (popurationSize > 1) {
+        _results = [];
+        for (_i = 1; 1 <= popurationSize ? _i <= popurationSize : _i >= popurationSize; 1 <= popurationSize ? _i++ : _i--) {
+          _results.push(new Individual);
+        }
+        return _results;
+      } else {
+        return [];
       }
-      return _results;
     })();
   }
 
@@ -340,16 +328,26 @@ Popuration = (function(_super) {
     return this;
   };
 
-  Popuration.prototype.remove = function(individual) {
-    var index;
-    index = typeof individual === 'number' ? individual : this.individuals.indexOf(individual);
-    if (index >= 0) {
-      return (this.individuals.splice(index, 0))[0];
+  Popuration.prototype.get = function(index) {
+    if (index < 0) {
+      index = this.individuals.length + index;
     }
+    return this.individuals[index];
   };
 
-  Popuration.prototype.get = function(index) {
-    return this.individuals[index];
+  Popuration.prototype.remove = function(individual) {
+    var index;
+    if (typeof individual === 'number') {
+      index = individual;
+      if (index < 0) {
+        index = this.individuals.length + index;
+      }
+    } else {
+      index = this.individuals.indexOf(individual);
+    }
+    if (index >= 0) {
+      return (this.individuals.splice(index, 1))[0];
+    }
   };
 
   Popuration.prototype.sample = function(sampler) {
@@ -382,11 +380,6 @@ Popuration = (function(_super) {
     return this;
   };
 
-  Popuration.prototype.some = function(operator) {
-    this.individuals.some(operator, this);
-    return this;
-  };
-
   Popuration.prototype.sum = function() {
     return this.individuals.reduce(function(sum, I) {
       return sum += I.fitness();
@@ -397,7 +390,7 @@ Popuration = (function(_super) {
     return this.sum() / this.size();
   };
 
-  Popuration.prototype.best = function(n) {
+  Popuration.prototype.best = function() {
     return this.individuals[0];
   };
 
@@ -405,7 +398,7 @@ Popuration = (function(_super) {
     return this.individuals.slice(0, n);
   };
 
-  Popuration.prototype.worst = function(n) {
+  Popuration.prototype.worst = function() {
     return this.individuals[this.individuals.length - 1];
   };
 
@@ -421,7 +414,7 @@ module.exports = Popuration;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
@@ -437,18 +430,39 @@ EventEmitter = require('events').EventEmitter;
 Resolver = (function(_super) {
   __extends(Resolver, _super);
 
-  function Resolver() {
-    return Resolver.__super__.constructor.apply(this, arguments);
-  }
-
-  Resolver.prototype.resolve = function(popuration, config, callback) {
-    var process, reproduct, terminates, _ref;
-    if (typeof config === 'function') {
-      callback = config;
+  function Resolver(reproduct, config) {
+    if (config == null) {
       config = {};
     }
-    reproduct = config.reproduct;
-    terminates = [].concat((_ref = config.terminate) != null ? _ref : []).map(function(fn) {
+    if (typeof reproduct === 'function') {
+      config.reproduct = reproduct;
+    } else {
+      config = reproduct != null ? reproduct : {};
+    }
+    if (config.reproduct == null) {
+      config.reproduct = this.reproduct;
+    }
+    this.config = config;
+  }
+
+  Resolver.prototype.resolve = function(popuration, config, callback_on_result) {
+    var generationNumber, key, process, terminates;
+    if (config == null) {
+      config = {};
+    }
+    if (typeof config === 'function') {
+      callback_on_result = config;
+      config = {};
+    }
+    for (key in this.config) {
+      if (config[key] == null) {
+        config[key] = this.config[key];
+      }
+    }
+    if (typeof config.reproduct !== 'function') {
+      throw new TypeError("" + config.reproduct + " is not a function");
+    }
+    terminates = [].concat(config.terminate).map(function(fn) {
       if (typeof fn === 'number') {
         return (function(limit) {
           return function(popuration) {
@@ -459,23 +473,37 @@ Resolver = (function(_super) {
         return fn;
       }
     });
-    popuration.sort();
-    setTimeout(process = (function(resolver) {
+    terminates.unshift((function(_this) {
       return function() {
-        popuration = reproduct.call(resolver, popuration).sort();
-        popuration.generationNumber++;
-        resolver.emit('reproduct', popuration);
-        if (terminates.some(function(fn) {
-          return fn.call(resolver, popuration);
-        })) {
-          resolver.emit('terminate', popuration, popuration.best());
-          return callback != null ? callback.call(resolver, popuration.best()) : void 0;
-        } else {
-          return setTimeout(process);
-        }
+        return !_this.processing;
       };
     })(this));
+    popuration.sort();
+    popuration.generationNumber = generationNumber = 0;
+    process = (function(_this) {
+      return function() {
+        var _ref;
+        if (_this.processing) {
+          popuration = ((_ref = config.reproduct.call(_this, popuration, config)) != null ? _ref : popuration).sort();
+          popuration.generationNumber = ++generationNumber;
+          _this.emit('reproduct', popuration, config);
+        }
+        if (terminates.some(function(fn) {
+          return fn.call(this, popuration);
+        })) {
+          _this.emit('terminate', popuration, config);
+          return callback_on_result != null ? callback_on_result.call(_this, popuration.best(), popuration, config) : void 0;
+        } else {
+          return _this.processing = setTimeout(process, config.intervalMillis);
+        }
+      };
+    })(this);
+    this.processing = setTimeout(process, config.intervalMillis);
     return this;
+  };
+
+  Resolver.prototype.terminate = function() {
+    return this.processing = void 0;
   };
 
   return Resolver;
@@ -490,7 +518,7 @@ module.exports = Resolver;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
@@ -512,7 +540,7 @@ Selector = (function() {
       r = Math.random() * S;
       s = 0;
       return popuration.sample(function(I) {
-        return (s += I.fitness()) >= r;
+        return (s += I.fitness()) > r;
       });
     });
   };
@@ -529,7 +557,7 @@ module.exports = Selector;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js.git/
+ * https://github.com/techlier/ga.js
  *
  * Copyright (c) 2014 Techlier Inc.
  *
@@ -537,10 +565,10 @@ module.exports = Selector;
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.0.1-SNAPSHOT',
+  full: '0.1.0',
   major: 0,
-  minor: 0,
-  dot: 1
+  minor: 1,
+  dot: 0
 };
 
 
@@ -848,7 +876,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[1])
-
-
-//# sourceMappingURL=ga-0.0.1-SNAPSHOT.js.map
+},{}]},{},[1]);

@@ -1,6 +1,6 @@
 ###
 # Genetic Algorithm API for JavaScript
-# https://github.com/techlier/ga.js.git/
+# https://github.com/techlier/ga.js
 #
 # Copyright (c) 2014 Techlier Inc.
 #
