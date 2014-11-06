@@ -35,7 +35,7 @@ describe 'Individual.pair', ->
    describe '#parents', ->
     it 'shold be a array, that contain pair of individuals', ->
       expect pair.parents
-        .to.be.a 'array'
+        .to.be.an 'array'
         .that.have.length 2
         .with.contain popuration.get 0
         .and.contain popuration.get -1
@@ -65,7 +65,7 @@ describe 'Individual.pair', ->
           ['0000', '1111']
 
         expect pair.offsprings
-          .to.be.a 'array'
+          .to.be.an 'array'
           .that.have.length 2
         for i in [0..1]
           expect pair.offsprings[i]
@@ -78,7 +78,7 @@ describe 'Individual.pair', ->
           throw new AssertionError 'crossover operator should not call'
 
         expect pair.offsprings
-          .to.be.a 'array'
+          .to.be.an 'array'
           .that.have.length 2
           .and.not.equal pair.parents
         for i in [0..1]
