@@ -2,10 +2,7 @@
 #   chromosome: array of boolean to pick a item or not
 #   locus: index of items
 
-if window?
-  GA = @GA
-else
-  GA = require '../lib/index'
+GA = if window? then window.GA else require '../lib/index'
 
 class Knapsack extends GA.Resolver
   constructor: (capacity, items)->
@@ -57,6 +54,6 @@ class Knapsack extends GA.Resolver
     super (new GA.Popuration @Individual, config.N), config, callback
 
 if window?
-  @Knapsack = Knapsack
+  window.Knapsack = Knapsack
 else
   module.exports = Knapsack
