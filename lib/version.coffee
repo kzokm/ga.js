@@ -9,7 +9,7 @@
 ###
 
 module.exports =
-  full: '0.1.0'
+  full: '0.2.0-SNAPSHOT'
   major: 0
-  minor: 1
+  minor: 2
   dot: 0

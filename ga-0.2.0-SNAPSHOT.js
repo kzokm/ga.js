@@ -565,9 +565,9 @@ module.exports = Selector;
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.1.0',
+  full: '0.2.0-SNAPSHOT',
   major: 0,
-  minor: 1,
+  minor: 2,
   dot: 0
 };
 
@@ -876,4 +876,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[1]);
+},{}]},{},[1])
+
+
+//# sourceMappingURL=ga-0.2.0-SNAPSHOT.js.map
