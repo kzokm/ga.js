@@ -54,9 +54,14 @@ class Popuration extends EventEmitter
         selected
 
   sort: ->
-    @individuals.sort (i1, i2)->
-      i2.fitness() - i1.fitness()
+    @individuals.sort @comparator
     @
+
+  @comparator: comparator =
+    asc: (i1, i2)-> i1.fitness() - i2.fitness()
+    desc: (i1, i2)-> i2.fitness() - i1.fitness()
+
+  comparator: comparator.desc
 
   each: (operator)->
     @individuals.forEach operator, @
