@@ -164,12 +164,12 @@ describe 'Popuration', ->
   describe '#top()', ->
     it 'should return specified number of top individuals', ->
       expect popuration.top 1
-        .to.be.a 'array'
+        .to.be.an 'array'
         .with.length 1
         .contain popuration.get 0
 
       expect popuration.top 3
-        .to.be.a 'array'
+        .to.be.an 'array'
         .with.length 3
         .contain popuration.get 0
         .contain popuration.get 1
