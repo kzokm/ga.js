@@ -1,7 +1,9 @@
+# Knapsack Problem Resolver
+#   chromosome: array of boolean to pick a item or not
+#   locus: index of items
 
 class @Knapsack extends GA.Resolver
   constructor: (capacity, items)->
-    super
     class @Individual extends GA.Individual
       constructor: (chromosome)->
         chromosome ?= for [1..items.length]
@@ -9,29 +11,21 @@ class @Knapsack extends GA.Resolver
         super chromosome
 
       fitnessFunction: ->
+        @itemNumbers = []
         @weight = @price = 0
-        for selected, i in @chromosome
-          if selected and capacity >= @weight + items[i].weight
+        for picked, i in @chromosome
+          if picked and capacity >= @weight + items[i].weight
+            @itemNumbers.push i + 1
             @weight += items[i].weight
             @price += items[i].price
           break if @weight == capacity
+        @itemNumbers.sort (a, b)-> a - b
         @price + @finessOffset
 
       finessOffset: 0.1
 
-      selected: ->
-        amount = 0
-        @_selected ?= @chromosome
-          .map (e, i)-> i + 1 if e
-          .filter (i)-> i?
-          .filter (i)->
-            if amount + items[i - 1].weight <= capacity
-              amount += items[i - 1].weight
-              true
-          .sort (a, b)-> a - b
-
       dump: ->
-        "amount prices: $#{@price.toFixed 2}, #{@weight.toFixed 1}Kg of [#{@selected()}] / #{@selected().length}"
+        "amount prices: $#{@price.toFixed 2}, #{@weight.toFixed 1}Kg of [#{@itemNumbers}] / #{@itemNumbers.length}"
 
   resolve: (config, callback)->
     crossover = GA.Crossover.point 2
