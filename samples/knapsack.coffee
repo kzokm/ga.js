@@ -2,7 +2,12 @@
 #   chromosome: array of boolean to pick a item or not
 #   locus: index of items
 
-class @Knapsack extends GA.Resolver
+if window?
+  GA = @GA
+else
+  GA = require '../lib/index'
+
+class Knapsack extends GA.Resolver
   constructor: (capacity, items)->
     class @Individual extends GA.Individual
       constructor: (chromosome)->
@@ -20,11 +25,12 @@ class @Knapsack extends GA.Resolver
             @price += items[i].price
           break if @weight == capacity
         @itemNumbers.sort (a, b)-> a - b
-        @price + @finessOffset
+        @price + @fitnessOffset
 
-      finessOffset: 0.1
+      fitnessOffset: 0.1
 
       dump: ->
+        @fitness()
         "amount prices: $#{@price.toFixed 2}, #{@weight.toFixed 1}Kg of [#{@itemNumbers}] / #{@itemNumbers.length}"
 
   resolve: (config, callback)->
@@ -49,3 +55,8 @@ class @Knapsack extends GA.Resolver
       ]
 
     super (new GA.Popuration @Individual, config.N), config, callback
+
+if window?
+  @Knapsack = Knapsack
+else
+  module.exports = Knapsack

@@ -19,6 +19,14 @@ gulp.task 'test', ->
       util.log error
       @emit 'end'
 
+gulp.task 'samples:test', ->
+  gulp.src ['samples/test/**/*.coffee']
+    .pipe mocha
+      reporter: 'spec'
+    .on 'error', (error)->
+      util.log error
+      @emit 'end'
+
 
 browserify = require 'browserify'
 exorcist = require 'exorcist'
@@ -53,8 +61,12 @@ gulp.task 'watch', ['compress'], ->
   gulp.watch 'test/*.coffee', ['test']
   gulp.watch 'lib/*.coffee', ['compress']
 
+gulp.task 'samples:watch', ['watch', 'samples:test'], ->
+  gulp.watch 'lib/*.coffee', ['samples:test']
+  gulp.watch 'samples/test/*.coffee', ['samples:test']
+  gulp.watch 'samples/*.coffee', ['samples:test']
 
-gulp.task 'server', ['watch'], ->
+gulp.task 'server', ['samples:watch'], ->
   app = require './samples/server'
   app.set 'port', process.env.PORT || 3000
   server = app.listen app.get('port'), ->
