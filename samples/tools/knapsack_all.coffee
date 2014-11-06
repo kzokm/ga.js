@@ -39,4 +39,4 @@ max = (m1, m2)->
 result = new Knapsack().resolv()
 console.info 'uptime: ' + process.uptime()
 console.info 'result: ' + result.selected
-console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.selected.length}"
+console.log "amount prices: $#{result.price.toFixed 2}, weight: #{result.weight.toFixed 1}Kg of #{result.selectedo.length}"
