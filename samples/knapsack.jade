@@ -2,6 +2,9 @@ extends layouts/layout
 
 block content
   script(src='knapsack.js')
+  script(src='util/histogram.js')
+  script
+    $(function() { $('#resolve').click() })
   style
     :stylus
 
@@ -42,7 +45,7 @@ block content
       | %
 
     .input
-      button#resolv Resolve
+      button#resolve Resolve
       button#terminate Terminate
 
   h2 Processing...
@@ -55,48 +58,16 @@ block content
       label Best
       span#best
 
-  svg
+  svg#histogram
 
   script
-    :coffeescript
-      class Chart
-        constructor: (element)->
-          @svg = d3.select element
-          @resize()
+    :coffee
+      class Chart extends Histogram
+        setup: (data)->
           @capacity = parseInt $('#C').val()
-          @max = @capacity * 2
-          @histogram = d3.layout.histogram()
-            .range [0, @max]
-            .bins d3.range 0, @max, 1
-            .value (d)-> d.price
+          super [0, @capacity * 2], (d)-> d.price
 
-          $(window).on 'resize', =>
-            @resize()
-
-        container = $('#container')[0]
-
-        resize: ->
-          @svg.attr
-            width: @width = window.innerWidth - container.offsetLeft * 2
-            height: @height = window.innerHeight - container.offsetTop * 2 - @svg[0][0].offsetTop
-
-        update: (popuration)->
-          @svg.selectAll 'rect'
-            .remove()
-
-          dx = @width / @max
-          @svg.selectAll 'rect'
-            .data @histogram popuration.individuals
-            .enter()
-            .append 'rect'
-            .attr
-              x: (d)-> d.x * dx
-              y: (d)=> @height - d.y * 10
-              width: (d)-> d.dx * dx
-              height: (d)-> d.y * 10
-              fill: '#888'
-
-      chart = new Chart 'svg'
+      chart = new Chart '#histogram'
 
       dump =
         update: (popuration)->
@@ -107,10 +78,11 @@ block content
 
       knapsack = undefined
 
-      $('#resolv').on 'click', (e)->
+      $('#resolve').on 'click', (e)->
         e.preventDefault()
         $.getJSON "data/#{$('#items').val()}.json", (data)->
           console.log data.params, data.items.length
+          chart.setup data
           knapsack?.terminate()
           knapsack = new Knapsack (parseInt $('#C').val()), data.items
             .on 'reproduct', (popuration)->
