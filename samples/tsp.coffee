@@ -45,7 +45,7 @@ class TSP extends GA.Resolver
 
     config.reproduct = (popuration)->
       elites = popuration.best()
-      selector = GA.Selector.roulette popuration
+      selector = GA.Selector.tournament popuration, 4
       offsprings = for [1..popuration.size() / 2]
         @Individual.pair selector
           .crossover config.Pc, crossover

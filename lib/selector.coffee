@@ -8,6 +8,8 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
+require './utils'
+
 class Selector
   constructor: (@next)->
 
@@ -18,5 +20,15 @@ class Selector
       s = 0
       popuration.sample (I)->
         (s += I.fitness()) > r
+
+  @tournament: (popuration, size = @tournament.defaultSize)->
+    N = popuration.size()
+    new Selector ->
+      group = for [1..size]
+        popuration.get Math.floor Math.random() * N
+      (group.sort popuration.comparator)[0]
+    .defineProperty 'size', value: size
+
+  @tournament.defineProperty 'defaultSize', value: 4
 
 module.exports = Selector
