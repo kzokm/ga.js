@@ -1,17 +1,6 @@
-class @Histogram
-  constructor: (element)->
-    @svg = d3.select element
-
-    $(window).on 'resize', =>
-      @resize()
-    @resize()
-
-  container = $('#container')[0]
-
+class @Histogram extends DrawingArea
   resize: ->
-    @svg.attr
-      width: @width = window.innerWidth - @svg[0][0].offsetLeft * 2
-      height: @height = window.innerHeight - container.offsetTop * 2 - @svg[0][0].offsetTop
+    super
     @scale =
       x: @width / (@max - @min)
       y: 5
