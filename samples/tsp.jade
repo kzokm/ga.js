@@ -1,0 +1,107 @@
+extends layouts/layout
+
+block content
+  script(src='tsp.js')
+  script(src='util/histogram.js')
+  script
+    $(function() { $('#resolve').click() })
+  style
+    :stylus
+
+  h1 Travelling Salesman Problem Resolver
+
+  form
+    h2 Problem Parameter:
+    .input
+      label Number of Cities
+      select#cities(name='cities')
+        - for i in [5, 10, 11, 12, 13, 14, 15, 20, 100, 1000]
+          - if (i == 20)
+            option(value="cities_#{i}" selected)= i
+          - else
+            option(value="cities_#{i}")= i
+
+    h2 GA Parameter:
+    .input
+      label Number of Popuration
+      input#N(type='number' value='300')
+
+    .input
+      label Maximum Generation
+      input#G(type='number' value='500')
+
+    .input
+      label Crossover Rate
+      input#Pc(type='number' value='90.0')
+      | %
+
+    .input
+      label Mutation Rate
+      input#Pm(type='number' value='5.0')
+      | %
+
+    .input
+      button#resolve Resolve
+      button#terminate Terminate
+
+  h2 Processing...
+  ul#dump
+    li
+      label Generation Number:
+      span#g
+
+    li
+      label Best
+      span#best
+
+  svg#histogram
+
+  script
+    :coffee
+      class Chart extends Histogram
+        setup: (data)->
+          super [150, data.cities.length * 50], (d)-> d.totalDistance
+
+      chart = new Chart '#histogram'
+
+      dump =
+        update: (popuration)->
+          @g.text popuration.generationNumber
+          @best.text popuration.best().dump()
+        g: $('#g')
+        best: $('#best')
+
+      tsp = undefined
+
+      $('#resolve').on 'click', (e)->
+        e.preventDefault()
+        $.getJSON "data/#{$('#cities').val()}.json", (data)->
+          console.log data.params, data.cities.length
+          chart.setup data
+          tsp?.terminate()
+          tsp = new TSP data.cities
+            .on 'reproduct', (popuration)->
+              console.log 'reproduct', popuration.dump()
+              chart.update popuration
+              dump.update popuration
+            .resolve
+              N: parseInt $('#N').val()
+              G: parseInt $('#G').val()
+              Pc: $('#Pc').val() / 100
+              Pm: $('#Pm').val() / 100
+              #intervalMillis: 1000
+            , (result, popuration)->
+              console.log 'finish', popuration.dump()
+              console.log result.itemNumbers
+              console.log result.dump()
+
+      $('#terminate').on 'click', (e)->
+        e.preventDefault()
+        tsp?.terminate()
+        tsp = undefined
+
+      GA.Popuration::dump = ->
+        "#{@generationNumber}" +
+          ", best: #{@best().fitness().toFixed 3}" +
+          ", worst: #{@worst().fitness().toFixed 3}" +
+          ", ave: #{@average().toFixed 3}"
