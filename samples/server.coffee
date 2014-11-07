@@ -7,6 +7,7 @@ logger = require 'morgan'
 app.use logger 'dev'
 
 cachedir = "#{__dirname}/.cache"
+libroot = "#{__dirname}/.."
 
 # view engine setup
 app.set 'views', "#{__dirname}/."
@@ -31,13 +32,15 @@ app.use coffee
 
 app.use express.static cachedir
 
+
 app.get '/ga.js', (req, res) ->
-  res.sendFile "ga-#{version}.js",
-    root: "${__dirname}/.."
+  res.sendFile "ga-#{version}.js", root: libroot
 
 app.get '/ga.min.js', (req, res) ->
-  res.sendFile "ga-#{version}.min.js",
-    root: "${__dirname}/.."
+  res.sendFile "ga-#{version}.min.js", root: libroot
+
+app.get "/*.map", (req, res) ->
+  res.sendFile req.path, root: libroot
 
 app.get '/*', (req, res) ->
   res.render req.params[0]

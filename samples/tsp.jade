@@ -1,0 +1,150 @@
+extends layouts/layout
+
+block content
+  script(src='tsp.js')
+  script(src='util/histogram.js')
+  script(src='util/progress.js')
+  script
+    //$(function() { $('#resolve').click() })
+  style
+    :stylus
+
+  h1 Travelling Salesman Problem Resolver
+
+  form
+    h2 Problem Parameter:
+    .input
+      label Number of Cities
+      select#cities(name='cities')
+        - for i in [5, 10, 11, 12, 13, 14, 15, 20, 100, 1000]
+          - if (i == 20)
+            option(value="cities_#{i}" selected)= i
+          - else
+            option(value="cities_#{i}")= i
+
+    h2 GA Parameter:
+    .input
+      label Number of Popuration
+      input#N(type='number' value='300')
+
+    .input
+      label Maximum Generation
+      input#G(type='number' value='500')
+
+    .input
+      label Crossover Rate
+      input#Pc(type='number' value='90.0')
+      | %
+
+    .input
+      label Mutation Rate
+      input#Pm(type='number' value='5.0')
+      | %
+
+    .input
+      button#resolve Resolve
+      button#terminate Terminate
+
+  div#progress
+  svg#map
+  svg#histogram
+
+  script
+    :coffee
+      progress = new Progress '#progress'
+
+      class TravelMap extends DrawingArea
+        resize: ->
+          super
+          @width = @height = Math.min @width, @height
+          @svg.attr
+            width: @width
+            height: @height
+          .append 'path'
+            .attr
+              class: 'route'
+              fill: 'none'
+
+
+        setup: (data)->
+          {@min, @max} = data.params.position
+          @cities = data.cities
+
+        update: (popuration)->
+          radius = 5
+          margin = radius
+          offset = @min
+          scale = (@width - margin * 2) / (@max - @min)
+
+          transform = (p)-> (p - offset) * scale + margin
+
+          path = d3.svg.line()
+            .x (d)=> transform @cities[d].x
+            .y (d)=> transform @cities[d].y
+
+          @svg.selectAll '.route'
+            .attr
+              d: -> path popuration.best().route()
+
+          @svg.selectAll '.city'
+            .remove()
+
+          @svg.selectAll '.city'
+            .data @cities
+            .enter()
+            .append 'circle'
+            .attr
+               class: 'city'
+               cx: (d)-> transform d.x
+               cy: (d)-> transform d.y
+               r: radius
+
+      class Chart extends Histogram
+        constructor: ->
+          @map = new TravelMap '#map'
+          @histogram = new Histogram '#histogram'
+
+        setup: (data)->
+          @map.setup data
+          @histogram.setup [150, data.cities.length * 50], (d)-> d.totalDistance
+
+        update: (popuration)->
+          @map.update popuration
+          @histogram.update popuration
+
+      chart = new Chart
+
+      tsp = undefined
+
+      $('#resolve').on 'click', (e)->
+        e.preventDefault()
+        $.getJSON "data/#{$('#cities').val()}.json", (data)->
+          console.log data.params, data.cities.length
+          chart.setup data
+          tsp?.terminate()
+          tsp = new TSP data.cities
+            .on 'reproduct', (popuration)->
+              console.log 'reproduct', popuration.dump()
+              progress.update popuration
+              chart.update popuration
+            .resolve
+              N: parseInt $('#N').val()
+              G: parseInt $('#G').val()
+              Pc: $('#Pc').val() / 100
+              Pm: $('#Pm').val() / 100
+              #intervalMillis: 1000
+            , (result, popuration)->
+              console.log 'finish', popuration.dump()
+              console.log result.itemNumbers
+              console.log result.dump()
+
+      $('#terminate').on 'click', (e)->
+        e.preventDefault()
+        tsp?.terminate()
+        tsp = undefined
+
+      GA.Popuration::dump = ->
+        "#{@generationNumber}" +
+          ", best: #{@best().fitness().toFixed 3}" +
+          ", worst: #{@worst().fitness().toFixed 3}" +
+          ", ave: #{@average().toFixed 3}"

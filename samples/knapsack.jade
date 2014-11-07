@@ -2,6 +2,10 @@ extends layouts/layout
 
 block content
   script(src='knapsack.js')
+  script(src='util/histogram.js')
+  script(src='util/progress.js')
+  script
+    $(function() { $('#resolve').click() })
   style
     :stylus
 
@@ -42,81 +46,35 @@ block content
       | %
 
     .input
-      button#resolv Resolve
+      button#resolve Resolve
       button#terminate Terminate
 
-  h2 Processing...
-  ul#dump
-    li
-      label Generation Number:
-      span#g
-
-    li
-      label Best
-      span#best
-
-  svg
+  div#progress
+  svg#histogram
 
   script
-    :coffeescript
-      class Chart
-        constructor: (element)->
-          @svg = d3.select element
-          @resize()
+    :coffee
+      progress = new Progress '#progress'
+
+      class Chart extends Histogram
+        setup: (data)->
           @capacity = parseInt $('#C').val()
-          @max = @capacity * 2
-          @histogram = d3.layout.histogram()
-            .range [0, @max]
-            .bins d3.range 0, @max, 1
-            .value (d)-> d.price
-
-          $(window).on 'resize', =>
-            @resize()
-
-        container = $('#container')[0]
-
-        resize: ->
-          @svg.attr
-            width: @width = window.innerWidth - container.offsetLeft * 2
-            height: @height = window.innerHeight - container.offsetTop * 2 - @svg[0][0].offsetTop
-
-        update: (popuration)->
-          @svg.selectAll 'rect'
-            .remove()
-
-          dx = @width / @max
-          @svg.selectAll 'rect'
-            .data @histogram popuration.individuals
-            .enter()
-            .append 'rect'
-            .attr
-              x: (d)-> d.x * dx
-              y: (d)=> @height - d.y * 10
-              width: (d)-> d.dx * dx
-              height: (d)-> d.y * 10
-              fill: '#888'
-
-      chart = new Chart 'svg'
-
-      dump =
-        update: (popuration)->
-          @g.text popuration.generationNumber
-          @best.text popuration.best().dump()
-        g: $('#g')
-        best: $('#best')
+          super [0, @capacity * 2], (d)-> d.price
+      chart = new Chart '#histogram'
 
       knapsack = undefined
 
-      $('#resolv').on 'click', (e)->
+      $('#resolve').on 'click', (e)->
         e.preventDefault()
         $.getJSON "data/#{$('#items').val()}.json", (data)->
           console.log data.params, data.items.length
+          chart.setup data
           knapsack?.terminate()
           knapsack = new Knapsack (parseInt $('#C').val()), data.items
             .on 'reproduct', (popuration)->
               console.log 'reproduct', popuration.dump()
+              progress.update popuration
               chart.update popuration
-              dump.update popuration
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()

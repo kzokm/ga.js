@@ -1,40 +1,46 @@
-$  bin/tsp_all.coffee data/cities_10.json
+$ tools/tsp_all.coffee data/cities_5.json
+number of cities: 5
+uptime: 0
+result: 0,1,4,3,2
+distance: 184.804
+
+$ tools/tsp_all.coffee data/cities_10.json
 number of cities: 10
 uptime: 0
 result: 0,3,4,2,9,1,5,6,8,7
 distance: 271.636
 
-$ bin/tsp_all.coffee data/cities_11.json
+$ tools/tsp_all.coffee data/cities_11.json
 number of cities: 11
 uptime: 1
 result: 0,2,1,5,7,10,6,8,4,9,3
 distance: 279.152
 
-$ bin/tsp_all.coffee data/cities_12.json
+$ tools/tsp_all.coffee data/cities_12.json
 number of cities: 12
 uptime: 2
 result: 0,7,1,8,10,4,3,5,2,11,6,9
 distance: 283.509
 
-$ bin/tsp_all.coffee data/cities_13.json
+$ tools/tsp_all.coffee data/cities_13.json
 number of cities: 13
 uptime: 8
 result: 0,3,4,6,12,11,9,5,2,1,8,10,7
 distance: 310.814
 
-$ bin/tsp_all.coffee data/cities_14.json
+$ tools/tsp_all.coffee data/cities_14.json
 number of cities: 14
 uptime: 36
 result: 0,8,4,3,6,10,9,13,1,7,2,5,12,11
 distance: 312.335
 
-$ bin/tsp_all.coffee data/cities_15.json
+$ tools/tsp_all.coffee data/cities_15.json
 number of cities: 15
 uptime: 167
 result: 0,1,4,6,10,13,2,7,3,9,5,12,11,8,14
 distance: 352.372
 
-$ bin/tsp_all.coffee data/cities_20.json
+$ tools/tsp_all.coffee data/cities_20.json
 number of cities: 20
 uptime: 294997
 result: 0,6,17,11,19,7,2,18,13,16,3,14,12,5,4,8,10,15,1,9

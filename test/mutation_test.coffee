@@ -4,12 +4,27 @@
 
 describe 'MutationOperator', ->
   Mutation = require '../lib/mutation_operator'
-  it 'should be a object', ->
+  it 'should be a function', ->
     expect Mutation
-      .to.be.a 'object'
+      .to.be.a 'function'
 
   random = require './lib/pesudo_random'
     .attach()
+
+  describe '.booleanInversion()', ->
+    mutate = Mutation.booleanInversion()
+
+    it 'should return a function', ->
+      expect mutate
+        .to.be.a 'function'
+
+    it 'can mutate false to true', ->
+      expect mutate [false]
+        .to.deep.equal [true]
+
+    it 'can mutate true to false', ->
+      expect mutate [true]
+        .to.deep.equal [false]
 
   describe '.binaryInversion()', ->
     mutate = Mutation.binaryInversion()
@@ -17,6 +32,14 @@ describe 'MutationOperator', ->
     it 'should return a function', ->
       expect mutate
         .to.be.a 'function'
+
+    it 'can mutate 0 to 1', ->
+      expect mutate [0]
+        .to.deep.equal [1]
+
+    it 'can mutate 1 to 0', ->
+      expect mutate [1]
+        .to.deep.equal [0]
 
     it 'can mutate first gene', ->
       random.set 0
@@ -68,8 +91,20 @@ describe 'MutationOperator', ->
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equal [1, 4, 3, 2, 5]
 
+
   describe '.reverse()', ->
     mutate = Mutation.reverse()
+
+    it 'should return a function', ->
+      expect mutate
+        .to.be.a 'function'
+
+    it 'should be same as inversion', ->
+      expect mutate.toString()
+        .to.equal Mutation.inversion().toString()
+
+  describe '.inversion()', ->
+    mutate = Mutation.inversion()
 
     it 'should return a function', ->
       expect mutate
