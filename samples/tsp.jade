@@ -3,6 +3,7 @@ extends layouts/layout
 block content
   script(src='tsp.js')
   script(src='util/histogram.js')
+  script(src='util/progress.js')
   script
     $(function() { $('#resolve').click() })
   style
@@ -44,32 +45,18 @@ block content
       button#resolve Resolve
       button#terminate Terminate
 
-  h2 Processing...
-  ul#dump
-    li
-      label Generation Number:
-      span#g
-
-    li
-      label Best
-      span#best
-
+  div#progress
   svg#histogram
+  svg#map
 
   script
     :coffee
+      progress = new Progress '#progress'
+
       class Chart extends Histogram
         setup: (data)->
           super [150, data.cities.length * 50], (d)-> d.totalDistance
-
       chart = new Chart '#histogram'
-
-      dump =
-        update: (popuration)->
-          @g.text popuration.generationNumber
-          @best.text popuration.best().dump()
-        g: $('#g')
-        best: $('#best')
 
       tsp = undefined
 
@@ -82,8 +69,8 @@ block content
           tsp = new TSP data.cities
             .on 'reproduct', (popuration)->
               console.log 'reproduct', popuration.dump()
+              progress.update popuration
               chart.update popuration
-              dump.update popuration
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()

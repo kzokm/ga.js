@@ -3,6 +3,7 @@ extends layouts/layout
 block content
   script(src='knapsack.js')
   script(src='util/histogram.js')
+  script(src='util/progress.js')
   script
     $(function() { $('#resolve').click() })
   style
@@ -48,33 +49,18 @@ block content
       button#resolve Resolve
       button#terminate Terminate
 
-  h2 Processing...
-  ul#dump
-    li
-      label Generation Number:
-      span#g
-
-    li
-      label Best
-      span#best
-
+  div#progress
   svg#histogram
 
   script
     :coffee
+      progress = new Progress '#progress'
+
       class Chart extends Histogram
         setup: (data)->
           @capacity = parseInt $('#C').val()
           super [0, @capacity * 2], (d)-> d.price
-
       chart = new Chart '#histogram'
-
-      dump =
-        update: (popuration)->
-          @g.text popuration.generationNumber
-          @best.text popuration.best().dump()
-        g: $('#g')
-        best: $('#best')
 
       knapsack = undefined
 
@@ -87,8 +73,8 @@ block content
           knapsack = new Knapsack (parseInt $('#C').val()), data.items
             .on 'reproduct', (popuration)->
               console.log 'reproduct', popuration.dump()
+              progress.update popuration
               chart.update popuration
-              dump.update popuration
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()
