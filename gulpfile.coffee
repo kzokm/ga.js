@@ -12,13 +12,12 @@ gulp.task 'default', ['compress']
 
 mocha = require 'gulp-mocha'
 test = (src)->
-  console.log 'test', arguments
   gulp.src src
-    .pipe mocha
-      reporter: 'spec'
-    .on 'error', (error)->
-      util.log error
-      @emit 'end'
+  .pipe mocha
+    reporter: 'spec'
+  .on 'error', (error)->
+    util.log error
+    @emit 'end'
 
 gulp.task 'test', ->
   test 'test/**/*.coffee'
@@ -76,5 +75,11 @@ gulp.task 'samples:watch', ['watch', 'samples:test'], ->
 gulp.task 'server', ['samples:watch'], ->
   app = require './samples/server'
   app.set 'port', process.env.PORT || 3000
+
   server = app.listen app.get('port'), ->
     console.log 'Express server listening on port ' + server.address().port
+
+  gulp.watch 'samples/server.coffee', (e)->
+    server.close ->
+      server = app.listen app.get('port'), ->
+        console.log 'Restart server listening on port ' + server.address().port
