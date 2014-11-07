@@ -27,6 +27,12 @@ describe 'samples/TSP', ->
           .to.satisfy ->
             chromosome.every (gene)-> typeof gene == 'number'
 
+      xit '1st gene should be less than last gene', ->
+        individual = new Individual [3, 1, 2]
+        chromosome = individual.chromosome
+        expect chromosome[0]
+          .to.be.lessThan chromosome[2]
+
       it 'should contain all number between 1 and cities.length - 1', ->
         sequence = [1..cities.length - 1]
         for [0..1000]
