@@ -1,1 +1,1 @@
-web: node bsamples/bin/www
+web: node samples/bin/www

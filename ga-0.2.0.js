@@ -14,13 +14,21 @@ window.GA = require('../lib/index');
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var CrossoverOperator, _exchange, _exchangeAfter, _randomLocusOf;
+var CrossoverOperator;
 
-CrossoverOperator = {
-  point: function(n) {
+CrossoverOperator = (function() {
+  var exchange, exchangeAfter, randomLocusOf, reject;
+
+  function CrossoverOperator() {}
+
+  randomLocusOf = function(c) {
+    return Math.floor(Math.random() * c.length);
+  };
+
+  CrossoverOperator.point = function(n) {
     if (n === 1) {
       return function(c1, c2) {
-        return _exchangeAfter(c1, c2, _randomLocusOf(c1));
+        return exchangeAfter(c1, c2, randomLocusOf(c1));
       };
     } else {
       return function(c1, c2) {
@@ -29,7 +37,7 @@ CrossoverOperator = {
           var _i, _results;
           _results = [];
           for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
-            _results.push(_randomLocusOf(c1));
+            _results.push(randomLocusOf(c1));
           }
           return _results;
         })();
@@ -40,13 +48,18 @@ CrossoverOperator = {
           if (i > 0) {
             p++;
           }
-          return _ref = _exchangeAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
+          return _ref = exchangeAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
         });
         return [c1, c2];
       };
     }
-  },
-  uniform: function(probability) {
+  };
+
+  exchangeAfter = function(c1, c2, p) {
+    return [c1.slice(0, p).concat(c2.slice(p)), c2.slice(0, p).concat(c1.slice(p))];
+  };
+
+  CrossoverOperator.uniform = function(probability) {
     if (probability == null) {
       probability = 0.5;
     }
@@ -56,28 +69,43 @@ CrossoverOperator = {
       c2 = c2.concat();
       for (i = _i = 0, _ref = c1.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         if (Math.random() < probability) {
-          _exchange(c1, c2, i);
+          exchange(c1, c2, i);
         }
       }
       return [c1, c2];
     };
-  }
-};
+  };
 
-_randomLocusOf = function(c) {
-  return Math.floor(Math.random() * c.length);
-};
+  exchange = function(c1, c2, pos) {
+    var temp;
+    temp = c1[pos];
+    c1[pos] = c2[pos];
+    return c2[pos] = temp;
+  };
 
-_exchangeAfter = function(c1, c2, p) {
-  return [c1.slice(0, p).concat(c2.slice(p)), c2.slice(0, p).concat(c1.slice(p))];
-};
+  CrossoverOperator.OX = CrossoverOperator.order = function() {
+    return function(c1, c2) {
+      var o1, o2, p, _ref, _ref1;
+      p = randomLocusOf(c1);
+      (_ref = (o1 = c1.slice(0, p))).push.apply(_ref, reject(c2, o1));
+      (_ref1 = (o2 = c2.slice(0, p))).push.apply(_ref1, reject(c1, o2));
+      return [o1, o2];
+    };
+  };
 
-_exchange = function(c1, c2, pos) {
-  var temp;
-  temp = c1[pos];
-  c1[pos] = c2[pos];
-  return c2[pos] = temp;
-};
+  reject = function(array, excepts) {
+    return array.filter(function(e) {
+      return (excepts.indexOf(e)) < 0;
+    });
+  };
+
+  CrossoverOperator.CS = CrossoverOperator.cycle = function() {
+    return function(c1, c2) {};
+  };
+
+  return CrossoverOperator;
+
+})();
 
 module.exports = CrossoverOperator;
 
@@ -122,7 +150,7 @@ module.exports = GA;
 
 
 
-},{"./crossover_operator":2,"./individual":4,"./mutation_operator":5,"./popuration":6,"./resolver":7,"./selector":8,"./version":9}],4:[function(require,module,exports){
+},{"./crossover_operator":2,"./individual":4,"./mutation_operator":5,"./popuration":6,"./resolver":7,"./selector":8,"./version":10}],4:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -216,65 +244,80 @@ module.exports = Individual;
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var MutationOperator, _exchange, _randomLocusOf;
+var MutationOperator, deprecated;
 
-MutationOperator = {
-  booleanInversion: function() {
+deprecated = require('deprecated');
+
+MutationOperator = (function() {
+  var exchange, randomLocusOf;
+
+  function MutationOperator() {}
+
+  randomLocusOf = function(chromosome) {
+    return Math.floor(Math.random() * chromosome.length);
+  };
+
+  MutationOperator.booleanInversion = function() {
     return this.substitution(function(gene) {
       return !gene;
     });
-  },
-  binaryInversion: function() {
+  };
+
+  MutationOperator.binaryInversion = function() {
     return this.substitution(function(gene) {
       return 1 - gene;
     });
-  },
-  substitution: function(alleles) {
+  };
+
+  MutationOperator.substitution = function(alleles) {
     return function(chromosome) {
       var p;
-      p = _randomLocusOf(chromosome);
+      p = randomLocusOf(chromosome);
       chromosome[p] = alleles(chromosome[p]);
       return chromosome;
     };
-  },
-  exchange: function() {
+  };
+
+  MutationOperator.exchange = function() {
     return function(chromosome) {
       var p1, p2;
-      p1 = _randomLocusOf(chromosome);
-      p2 = _randomLocusOf(chromosome);
-      _exchange(chromosome, p1, p2);
+      p1 = randomLocusOf(chromosome);
+      p2 = randomLocusOf(chromosome);
+      exchange(chromosome, p1, p2);
       return chromosome;
     };
-  },
-  reverse: function() {
+  };
+
+  exchange = function(c, p1, p2) {
+    var temp;
+    temp = c[p1];
+    c[p1] = c[p2];
+    return c[p2] = temp;
+  };
+
+  MutationOperator.inversion = function() {
     return function(chromosome) {
       var c1, c2, c3, p1, p2;
-      p1 = _randomLocusOf(chromosome);
-      p2 = _randomLocusOf(chromosome);
+      p1 = randomLocusOf(chromosome);
+      p2 = randomLocusOf(chromosome);
       c1 = chromosome.splice(0, Math.min(p1, p2));
       c2 = chromosome.splice(0, (Math.abs(p1 - p2)) + 1);
       c3 = chromosome;
       return c1.concat(c2.reverse(), c3);
     };
-  }
-};
+  };
 
-_randomLocusOf = function(chromosome) {
-  return Math.floor(Math.random() * chromosome.length);
-};
+  MutationOperator.reverse = deprecated.method('Mutation.reverse is deprecated, Use inversion instead', console.log, MutationOperator.inversion);
 
-_exchange = function(c, p1, p2) {
-  var temp;
-  temp = c[p1];
-  c[p1] = c[p2];
-  return c[p2] = temp;
-};
+  return MutationOperator;
+
+})();
 
 module.exports = MutationOperator;
 
 
 
-},{}],6:[function(require,module,exports){
+},{"deprecated":12}],6:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -292,6 +335,8 @@ var EventEmitter, Popuration,
 EventEmitter = require('events').EventEmitter;
 
 Popuration = (function(_super) {
+  var comparator;
+
   __extends(Popuration, _super);
 
   function Popuration(Individual, popurationSize) {
@@ -369,11 +414,20 @@ Popuration = (function(_super) {
   };
 
   Popuration.prototype.sort = function() {
-    this.individuals.sort(function(i1, i2) {
-      return i2.fitness() - i1.fitness();
-    });
+    this.individuals.sort(this.comparator);
     return this;
   };
+
+  Popuration.comparator = comparator = {
+    asc: function(i1, i2) {
+      return i1.fitness() - i2.fitness();
+    },
+    desc: function(i1, i2) {
+      return i2.fitness() - i1.fitness();
+    }
+  };
+
+  Popuration.prototype.comparator = comparator.desc;
 
   Popuration.prototype.each = function(operator) {
     this.individuals.forEach(operator, this);
@@ -410,7 +464,7 @@ module.exports = Popuration;
 
 
 
-},{"events":10}],7:[function(require,module,exports){
+},{"events":11}],7:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -514,7 +568,7 @@ module.exports = Resolver;
 
 
 
-},{"events":10}],8:[function(require,module,exports){
+},{"events":11}],8:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -526,6 +580,8 @@ module.exports = Resolver;
  * http://opensource.org/licenses/mit-license.php
  */
 var Selector;
+
+require('./utils');
 
 Selector = (function() {
   function Selector(next) {
@@ -545,6 +601,33 @@ Selector = (function() {
     });
   };
 
+  Selector.tournament = function(popuration, size) {
+    var N, selector;
+    if (size == null) {
+      size = this.tournament.defaultSize;
+    }
+    N = popuration.size();
+    selector = new Selector(function() {
+      var group;
+      group = (function() {
+        var _i, _results;
+        _results = [];
+        for (_i = 1; 1 <= size ? _i <= size : _i >= size; 1 <= size ? _i++ : _i--) {
+          _results.push(popuration.get(Math.floor(Math.random() * N)));
+        }
+        return _results;
+      })();
+      return (group.sort(popuration.comparator))[0];
+    });
+    return Object.defineProperty(selector, 'size', {
+      value: size
+    });
+  };
+
+  Object.defineProperty(Selector.tournament, 'defaultSize', {
+    value: 4
+  });
+
   return Selector;
 
 })();
@@ -553,7 +636,19 @@ module.exports = Selector;
 
 
 
-},{}],9:[function(require,module,exports){
+},{"./utils":9}],9:[function(require,module,exports){
+var _base;
+
+if ((_base = Function.prototype).property == null) {
+  _base.property = function(prop, descriptor) {
+    Object.defineProperty(this.prototype, prop, descriptor);
+    return this;
+  };
+}
+
+
+
+},{}],10:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -565,7 +660,7 @@ module.exports = Selector;
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.2.0-SNAPSHOT',
+  full: '0.2.0',
   major: 0,
   minor: 2,
   dot: 0
@@ -573,7 +668,7 @@ module.exports = {
 
 
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -876,7 +971,44 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[1])
+},{}],12:[function(require,module,exports){
+var deprecated = {
+  method: function(msg, log, fn) {
+    var called = false;
+    return function(){
+      if (!called) {
+        called = true;
+        log(msg);
+      }
+      return fn.apply(this, arguments);
+    };
+  },
 
+  field: function(msg, log, parent, field, val) {
+    var called = false;
+    var getter = function(){
+      if (!called) {
+        called = true;
+        log(msg);
+      }
+      return val;
+    };
+    var setter = function(v) {
+      if (!called) {
+        called = true;
+        log(msg);
+      }
+      val = v;
+      return v;
+    };
+    Object.defineProperty(parent, field, {
+      get: getter,
+      set: setter,
+      enumerable: true
+    });
+    return;
+  }
+};
 
-//# sourceMappingURL=ga-0.2.0-SNAPSHOT.js.map
+module.exports = deprecated;
+},{}]},{},[1]);
