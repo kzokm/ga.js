@@ -23,12 +23,12 @@ class Selector
 
   @tournament: (popuration, size = @tournament.defaultSize)->
     N = popuration.size()
-    new Selector ->
+    selector = new Selector ->
       group = for [1..size]
         popuration.get Math.floor Math.random() * N
       (group.sort popuration.comparator)[0]
-    .defineProperty 'size', value: size
+    Object.defineProperty selector, 'size', value: size
 
-  @tournament.defineProperty 'defaultSize', value: 4
+  Object.defineProperty @tournament, 'defaultSize', value: 4
 
 module.exports = Selector

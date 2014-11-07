@@ -53,6 +53,6 @@ class CrossoverOperator
   reject = (array, excepts)->
     array.filter (e)-> (excepts.indexOf e) < 0
 
-
+  @CS: @cycle = -> (c1, c2)->
 
 module.exports = CrossoverOperator
