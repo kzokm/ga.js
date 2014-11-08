@@ -9,7 +9,7 @@
 ###
 
 module.exports =
-  full: '0.2.1'
+  full: '0.2.2'
   major: 0
   minor: 2
-  dot: 1
+  dot: 2
