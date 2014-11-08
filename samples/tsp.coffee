@@ -40,7 +40,7 @@ class TSP extends GA.Resolver
     comparator: Popuration.comparator.asc
 
   resolve: (config, callback)->
-    crossover = GA.Crossover.OX()
+    crossover = GA.Crossover.CX()
     mutator = GA.Mutation.inversion()
 
     config.reproduct = (popuration)->

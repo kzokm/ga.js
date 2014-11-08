@@ -53,6 +53,27 @@ class CrossoverOperator
   reject = (array, excepts)->
     array.filter (e)-> (excepts.indexOf e) < 0
 
-  @CS: @cycle = -> (c1, c2)->
+
+
+  @CX: @cycle = -> (c1, c2)->
+    length = c1.length
+    o1 = []
+    o2 = []
+    p = randomLocusOf c1
+    loop
+      until o1[p]?
+        o1[p] = c1[p]
+        o2[p] = c2[p]
+        p = c1.indexOf c2[p]
+        throw new Error 'Invalid chromosome for cyclic crossover' if p < 0
+      break if o1.length == length and countElements(o1) == length
+      p++ while o1[p]
+      p %= length
+      [c1, c2] = [c2, c1]
+    [o1, o2]
+
+  countElements = (array)->
+    array.reduce ((count)-> count + 1), 0
+
 
 module.exports = CrossoverOperator

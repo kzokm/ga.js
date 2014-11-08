@@ -17,7 +17,7 @@ window.GA = require('../lib/index');
 var CrossoverOperator;
 
 CrossoverOperator = (function() {
-  var exchange, exchangeAfter, randomLocusOf, reject;
+  var countElements, exchange, exchangeAfter, randomLocusOf, reject;
 
   function CrossoverOperator() {}
 
@@ -99,8 +99,39 @@ CrossoverOperator = (function() {
     });
   };
 
-  CrossoverOperator.CS = CrossoverOperator.cycle = function() {
-    return function(c1, c2) {};
+  CrossoverOperator.CX = CrossoverOperator.cycle = function() {
+    return function(c1, c2) {
+      var length, o1, o2, p, _ref;
+      length = c1.length;
+      o1 = [];
+      o2 = [];
+      p = randomLocusOf(c1);
+      while (true) {
+        while (o1[p] == null) {
+          o1[p] = c1[p];
+          o2[p] = c2[p];
+          p = c1.indexOf(c2[p]);
+          if (p < 0) {
+            throw new Error('Invalid chromosome for cyclic crossover');
+          }
+        }
+        if (o1.length === length && countElements(o1) === length) {
+          break;
+        }
+        while (o1[p]) {
+          p++;
+        }
+        p %= length;
+        _ref = [c2, c1], c1 = _ref[0], c2 = _ref[1];
+      }
+      return [o1, o2];
+    };
+  };
+
+  countElements = function(array) {
+    return array.reduce((function(count) {
+      return count + 1;
+    }), 0);
   };
 
   return CrossoverOperator;
