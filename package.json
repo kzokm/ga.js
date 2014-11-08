@@ -1,6 +1,6 @@
 {
   "name": "ga.js",
-  "version": "0.2.2",
+  "version": "0.3.0-SNAPSHOT",
   "description": "Genetic Algorithm API for JavaScript",
   "author": "OKAMURA, Kazuhide <okamura@techlier.jp>",
   "repository": {

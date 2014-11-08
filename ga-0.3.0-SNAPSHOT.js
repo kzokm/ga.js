@@ -660,10 +660,10 @@ if ((_base = Function.prototype).property == null) {
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.2.2',
+  full: '0.3.0-SNAPSHOT',
   major: 0,
-  minor: 2,
-  dot: 2
+  minor: 3,
+  dot: 0
 };
 
 
@@ -1011,4 +1011,7 @@ var deprecated = {
 };
 
 module.exports = deprecated;
-},{}]},{},[1]);
+},{}]},{},[1])
+
+
+//# sourceMappingURL=ga-0.3.0-SNAPSHOT.js.map
