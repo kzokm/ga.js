@@ -3,6 +3,22 @@ class @DrawingArea
     @svg = d3.select element
     @element = @svg[0][0]
 
+    @viewBox =
+      x: 0
+      y: 0
+      width: 1000
+      height: 1000
+      preserveAspectRatio: 'slice'
+
+      update: do (svg = @svg)-> (viewBox)->
+        console.log viewBox
+        for k, v of viewBox
+          @[k] = v
+        svg.attr
+          viewBox: "#{@x} #{@y} #{@width} #{@height}"
+          preserveAspectRatio: @preserveAspectRatio
+        @
+
     $(window).on 'resize', => @resize()
     $ => @resize()
 

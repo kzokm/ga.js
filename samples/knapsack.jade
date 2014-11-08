@@ -59,6 +59,8 @@ block content
       class Chart extends Histogram
         setup: (data)->
           @capacity = parseInt $('#C').val()
+          @viewBox.update
+            height: $('#N').val() / 5
           super [0, @capacity * 2], (d)-> d.price
       chart = new Chart '#histogram'
 
