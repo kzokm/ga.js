@@ -54,17 +54,17 @@ block content
       progress = new Progress '#progress'
 
       class TravelMap extends DrawingArea
-        resize: ->
+        constructor: ->
           super
-          @width = @height = Math.min @width, @height
-          @svg.attr
-            width: @width
-            height: @height
-          .append 'path'
+          @svg.append 'path'
             .attr
               class: 'route'
               fill: 'none'
 
+        size: ->
+          {width, height} = super
+          width: width = Math.min width, height
+          height: width
 
         setup: (data)->
           {@min, @max} = data.params.position
