@@ -660,10 +660,10 @@ if ((_base = Function.prototype).property == null) {
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.2.0',
+  full: '0.2.1',
   major: 0,
   minor: 2,
-  dot: 0
+  dot: 1
 };
 
 
