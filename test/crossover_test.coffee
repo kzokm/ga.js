@@ -154,7 +154,7 @@ describe 'CrossoverOperator', ->
                           ['A', 'B', 'C', 'D', 'E']]
 
 
-  # Crder crossover operation
+  # Order crossover operation
   describe '.OX()', ->
     crossover = Crossover.OX()
 
@@ -199,14 +199,14 @@ describe 'CrossoverOperator', ->
         .to.be.a 'function'
       crossover = injectArgumentsAssertion crossover
 
-    it 'should exchange some genes', ->
+    it 'can exchange some genes', ->
       random.push 5/6
       expect crossover  [1, 5, 3, 2, 4, 6],
                         [2, 6, 1, 3, 5, 4]
         .to.deep.equal [[2, 5, 1, 3, 4, 6],
                         [1, 6, 3, 2, 5, 4]]
 
-    xit 'should keep all genes if cyclic at once', ->
+    it 'should keep all genes if cyclic at once', ->
       random.push 0
       expect crossover  [1, 5, 3, 2, 4, 6],
                         [2, 6, 4, 5, 1, 3]
@@ -217,3 +217,62 @@ describe 'CrossoverOperator', ->
     it 'should same as .CX', ->
       expect Crossover.cycle
         .to.equal Crossover.CX
+
+
+  # Partially-mapped crossover operation
+  describe '.PMX 1', ->
+    crossover = Crossover.PMX 1
+
+    it 'should return a function', ->
+      expect crossover
+        .to.be.a 'function'
+      crossover = injectArgumentsAssertion crossover
+
+    it 'can exchange all genes', ->
+      random.push 0/6
+      expect crossover  [1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]
+        .to.deep.equal [[2, 6, 1, 3, 5, 4],
+                        [1, 5, 3, 2, 4, 6]]
+
+    it 'can exchange some genes', ->
+      random.push 2/6
+      expect crossover  [1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]
+        .to.deep.equal [[1, 5, 2, 3, 6, 4],
+                        [2, 6, 3, 1, 4, 5]]
+
+    it 'can keep all genes', ->
+      random.push 5/6
+      expect crossover  [1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]
+        .to.deep.equal [[1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]]
+
+  describe '.PMX 2', ->
+    crossover = Crossover.PMX 2
+
+    it 'should return a function', ->
+      expect crossover
+        .to.be.a 'function'
+      crossover = injectArgumentsAssertion crossover
+
+    it 'can exchange all genes', ->
+      random.push 0/6, 2/6
+      expect crossover  [1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]
+        .to.deep.equal [[1, 5, 2, 3, 6, 4],
+                        [2, 6, 3, 1, 4, 5]]
+
+      random.push 2/6, 0/6
+      expect crossover  [1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]
+        .to.deep.equal [[1, 5, 2, 3, 6, 4],
+                        [2, 6, 3, 1, 4, 5]]
+
+    it 'can exchange some genes', ->
+      random.push 2/6, 4/6
+      expect crossover  [1, 5, 3, 2, 4, 6],
+                        [2, 6, 1, 3, 5, 4]
+        .to.deep.equal [[1, 6, 3, 2, 5, 4],
+                        [2, 5, 1, 3, 4, 6]]
