@@ -70,7 +70,7 @@ gulp.task 'watch', ['compress'], ->
         .replace /([a-z]*).coffee/, 'test/$1_test.coffee'
       test src
 
-gulp.task 'server', ['watch'], ->
+gulp.task 'server', ->
   app = require './samples/server'
   app.set 'port', process.env.PORT || 3000
 
