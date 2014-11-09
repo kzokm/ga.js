@@ -58,8 +58,8 @@ class Popuration extends EventEmitter
     @
 
   @comparator: comparator =
-    asc: (i1, i2)-> i1.fitness() - i2.fitness()
-    desc: (i1, i2)-> i2.fitness() - i1.fitness()
+    asc: (i1, i2)-> i1.fitness - i2.fitness
+    desc: (i1, i2)-> i2.fitness - i1.fitness
 
   comparator: comparator.desc
 
@@ -69,7 +69,7 @@ class Popuration extends EventEmitter
 
   sum: ->
     @individuals.reduce (sum, I)->
-      sum += I.fitness()
+      sum += I.fitness
     , 0
 
   average: ->

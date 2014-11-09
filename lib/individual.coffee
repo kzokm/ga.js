@@ -8,12 +8,14 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
+require './utils'
+
 class Individual
   constructor: (@chromosome, fitnessFunction)->
     @fitnessFunction = fitnessFunction if fitnessFunction?
 
-  fitness: ->
-    @_fitnessValue ?= @fitnessFunction @chromosome
+  @property 'fitness',
+    get: -> @_fitnessValue ?= @fitnessFunction @chromosome
 
   mutate: (operator)->
     @chromosome = operator @chromosome

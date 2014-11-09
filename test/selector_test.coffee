@@ -41,7 +41,7 @@ describe 'Selector', ->
       else ((
         for i in [0..n - 1]
           popuration.get i
-            .fitness()
+            .fitness
         ).reduce (sum, f)->
           sum += f
         ) / sum

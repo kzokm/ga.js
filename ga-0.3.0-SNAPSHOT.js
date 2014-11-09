@@ -17,7 +17,7 @@ window.GA = require('../lib/index');
 var CrossoverOperator;
 
 CrossoverOperator = (function() {
-  var countElements, exchange, exchangeAfter, randomLocusOf, reject;
+  var countElements, exchange, exchangeAfter, pmx, randomLocusOf, reject;
 
   function CrossoverOperator() {}
 
@@ -30,18 +30,16 @@ CrossoverOperator = (function() {
       return function(c1, c2) {
         return exchangeAfter(c1, c2, randomLocusOf(c1));
       };
-    } else {
+    } else if (n > 1) {
       return function(c1, c2) {
-        var locus;
-        locus = (function() {
+        ((function() {
           var _i, _results;
           _results = [];
           for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
             _results.push(randomLocusOf(c1));
           }
           return _results;
-        })();
-        locus.sort(function(a, b) {
+        })()).sort(function(a, b) {
           return a - b;
         }).forEach(function(p, i) {
           var _ref;
@@ -52,6 +50,8 @@ CrossoverOperator = (function() {
         });
         return [c1, c2];
       };
+    } else {
+      throw new Error('invalid number of crossover point: #{n}');
     }
   };
 
@@ -115,7 +115,7 @@ CrossoverOperator = (function() {
             throw new Error('Invalid chromosome for cyclic crossover');
           }
         }
-        if (o1.length === length && countElements(o1) === length) {
+        if ((o1.length === length && length === countElements(o1))) {
           break;
         }
         while (o1[p]) {
@@ -132,6 +132,55 @@ CrossoverOperator = (function() {
     return array.reduce((function(count) {
       return count + 1;
     }), 0);
+  };
+
+  CrossoverOperator.PMX = function(n) {
+    if (n == null) {
+      n = 2;
+    }
+    if (n === 1) {
+      return function(c1, c2) {
+        var o1, o2, p;
+        p = randomLocusOf(c1);
+        o1 = pmx(c1.slice(0, p), c2, c1);
+        o2 = pmx(c2.slice(0, p), c1, c2);
+        return [o1, o2];
+      };
+    } else if (n === 2) {
+      return function(c1, c2) {
+        var i, o1, o2, p, q, _i, _ref, _ref1;
+        p = randomLocusOf(c1);
+        q = randomLocusOf(c1);
+        if (p > q) {
+          _ref = [q, p], p = _ref[0], q = _ref[1];
+        }
+        o1 = [];
+        o2 = [];
+        for (i = _i = p, _ref1 = q - 1; p <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = p <= _ref1 ? ++_i : --_i) {
+          o1[i] = c1[i];
+          o2[i] = c2[i];
+        }
+        o1 = pmx(o1, c2, c1);
+        o2 = pmx(o2, c1, c2);
+        return [o1, o2];
+      };
+    } else {
+      throw new Error('invalid number of crossover point: #{n}');
+    }
+  };
+
+  pmx = function(o, c1, c2) {
+    var p, _i, _ref, _results;
+    _results = [];
+    for (p = _i = 0, _ref = c1.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; p = 0 <= _ref ? ++_i : --_i) {
+      _results.push(o[p] != null ? o[p] : o[p] = (function() {
+        while (!((o.indexOf(c1[p])) < 0)) {
+          p = c2.indexOf(c1[p]);
+        }
+        return c1[p];
+      })());
+    }
+    return _results;
   };
 
   return CrossoverOperator;
@@ -194,6 +243,8 @@ module.exports = GA;
  */
 var Individual;
 
+require('./utils');
+
 Individual = (function() {
   function Individual(chromosome, fitnessFunction) {
     this.chromosome = chromosome;
@@ -202,9 +253,11 @@ Individual = (function() {
     }
   }
 
-  Individual.prototype.fitness = function() {
-    return this._fitnessValue != null ? this._fitnessValue : this._fitnessValue = this.fitnessFunction(this.chromosome);
-  };
+  Individual.property('fitness', {
+    get: function() {
+      return this._fitnessValue != null ? this._fitnessValue : this._fitnessValue = this.fitnessFunction(this.chromosome);
+    }
+  });
 
   Individual.prototype.mutate = function(operator) {
     this.chromosome = operator(this.chromosome);
@@ -264,7 +317,7 @@ module.exports = Individual;
 
 
 
-},{}],5:[function(require,module,exports){
+},{"./utils":9}],5:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -451,10 +504,10 @@ Popuration = (function(_super) {
 
   Popuration.comparator = comparator = {
     asc: function(i1, i2) {
-      return i1.fitness() - i2.fitness();
+      return i1.fitness - i2.fitness;
     },
     desc: function(i1, i2) {
-      return i2.fitness() - i1.fitness();
+      return i2.fitness - i1.fitness;
     }
   };
 
@@ -467,7 +520,7 @@ Popuration = (function(_super) {
 
   Popuration.prototype.sum = function() {
     return this.individuals.reduce(function(sum, I) {
-      return sum += I.fitness();
+      return sum += I.fitness;
     }, 0);
   };
 
@@ -627,7 +680,7 @@ Selector = (function() {
       r = Math.random() * S;
       s = 0;
       return popuration.sample(function(I) {
-        return (s += I.fitness()) > r;
+        return (s += I.fitness) > r;
       });
     });
   };

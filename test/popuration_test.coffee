@@ -128,7 +128,7 @@ describe 'Popuration', ->
     it 'should sort individuals by fitness value', ->
       popuration.sort()
       for i in [0..4]
-        expect popuration.get(i).fitness()
+        expect popuration.get(i).fitness
           .to.equal 5 - i
 
     it 'should return popuration it self', ->

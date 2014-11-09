@@ -19,7 +19,7 @@ class Selector
       r = Math.random() * S
       s = 0
       popuration.sample (I)->
-        (s += I.fitness()) > r
+        (s += I.fitness) > r
 
   @tournament: (popuration, size = @tournament.defaultSize)->
     N = popuration.size()

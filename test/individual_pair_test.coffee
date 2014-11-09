@@ -103,7 +103,7 @@ describe 'Individual.pair', ->
       offspring = pair.offsprings[0]
       expect offspring.chromosome
         .to.deep.equal [0, 0, 0, 0]
-      expect offspring.fitness()
+      expect offspring.fitness
         .to.equal 0
 
       pair.mutate 1, ->
@@ -117,7 +117,7 @@ describe 'Individual.pair', ->
         .to.deep.equal [offspring]
       expect offspring.chromosome
         .to.deep.equal [1, 1, 1, 1]
-      expect offspring.fitness()
+      expect offspring.fitness
         .to.equal 4
 
     it 'should not work if not enough probability', ->

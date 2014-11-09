@@ -33,7 +33,7 @@ class TSP extends GA.Resolver
         [].concat 0, @chromosome, 0
 
       dump: ->
-        @fitness()
+        @fitness
         "total distance: #{@totalDistance.toFixed 3}Km around [#{@route()}]"
 
   class Popuration extends GA.Popuration
@@ -57,7 +57,7 @@ class TSP extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best().fitness() == popuration.average()
+          popuration.best().fitness == popuration.average()
       ]
 
     super (new Popuration @Individual, config.N), config, callback
