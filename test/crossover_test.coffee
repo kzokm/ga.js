@@ -25,6 +25,7 @@ describe 'CrossoverOperator', ->
     it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
+        .with.property 'n', 1
       crossover = injectArgumentsAssertion crossover
 
     it 'can exchange all genes', ->
@@ -56,6 +57,7 @@ describe 'CrossoverOperator', ->
     it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
+        .with.property 'n', 2
       crossover = injectArgumentsAssertion crossover
 
     it 'can exchange 1st gene only', ->
@@ -103,6 +105,7 @@ describe 'CrossoverOperator', ->
     it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
+        .with.property 'probability', probability
       crossover = injectArgumentsAssertion crossover
 
     it 'can exchange 1st gene only', ->
@@ -137,6 +140,8 @@ describe 'CrossoverOperator', ->
     crossover = Crossover.uniform 0.0
 
     it 'should never crossover', ->
+      expect crossover
+        .to.have.property 'probability', 0
       for [0..1000]
         expect crossover  ['A', 'B', 'C', 'D', 'E'],
                           ['a', 'b', 'c', 'd', 'e']
@@ -147,6 +152,9 @@ describe 'CrossoverOperator', ->
     crossover = Crossover.uniform 1.0
 
     it 'should always crossover all genes', ->
+      expect crossover
+        .to.have.property 'probability', 1
+
       for [0..1000]
         expect crossover  ['A', 'B', 'C', 'D', 'E'],
                           ['a', 'b', 'c', 'd', 'e']
@@ -155,12 +163,13 @@ describe 'CrossoverOperator', ->
 
 
   # Order crossover operation
-  describe '.OX()', ->
-    crossover = Crossover.OX()
+  describe '.OX 1', ->
+    crossover = Crossover.OX 1
 
     it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
+        .with.property 'n', 1
       crossover = injectArgumentsAssertion crossover
 
     it 'can exchange all genes', ->
@@ -188,6 +197,36 @@ describe 'CrossoverOperator', ->
     it 'should same as .OX', ->
       expect Crossover.order
         .to.equal Crossover.OX
+
+  describe '.OX 2', ->
+    crossover = Crossover.OX 2
+
+    it 'should return a function', ->
+      expect crossover
+        .to.be.a 'function'
+        .with.property 'n', 2
+      crossover = injectArgumentsAssertion crossover
+
+    it 'can exchange all genes', ->
+      random.push 0, 4/5
+      expect crossover  [1, 3, 2, 4, 5],
+                        [2, 5, 4, 1, 3]
+        .to.deep.equal [[1, 3, 2, 4, 5],
+                        [2, 5, 4, 1, 3]]
+
+    it 'can keep 1st gene and exchange others', ->
+      random.push 0, 0
+      expect crossover  [1, 3, 2, 4, 5],
+                        [2, 5, 4, 1, 3]
+        .to.deep.equal [[1, 2, 5, 4, 3],
+                        [2, 1, 3, 4, 5]]
+
+    it 'can keep 2nd and 3rd genes and exchange others', ->
+      random.push 1/5, 2/5
+      expect crossover  [1, 3, 2, 4, 5],
+                        [2, 5, 4, 1, 3]
+        .to.deep.equal [[5, 3, 2, 4, 1],
+                        [1, 5, 4, 3, 2]]
 
 
   # Cycle crossover operation
@@ -226,6 +265,7 @@ describe 'CrossoverOperator', ->
     it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
+        .with.property 'n', 1
       crossover = injectArgumentsAssertion crossover
 
     it 'can exchange all genes', ->
@@ -255,23 +295,24 @@ describe 'CrossoverOperator', ->
     it 'should return a function', ->
       expect crossover
         .to.be.a 'function'
+        .with.property 'n', 2
       crossover = injectArgumentsAssertion crossover
 
     it 'can exchange all genes', ->
-      random.push 0/6, 2/6
+      random.push 0/6, 1/6
       expect crossover  [1, 5, 3, 2, 4, 6],
                         [2, 6, 1, 3, 5, 4]
         .to.deep.equal [[1, 5, 2, 3, 6, 4],
                         [2, 6, 3, 1, 4, 5]]
 
-      random.push 2/6, 0/6
+      random.push 1/6, 0/6
       expect crossover  [1, 5, 3, 2, 4, 6],
                         [2, 6, 1, 3, 5, 4]
         .to.deep.equal [[1, 5, 2, 3, 6, 4],
                         [2, 6, 3, 1, 4, 5]]
 
     it 'can exchange some genes', ->
-      random.push 2/6, 4/6
+      random.push 2/6, 3/6
       expect crossover  [1, 5, 3, 2, 4, 6],
                         [2, 6, 1, 3, 5, 4]
         .to.deep.equal [[1, 6, 3, 2, 5, 4],
