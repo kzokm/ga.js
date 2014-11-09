@@ -10,7 +10,7 @@ class @Progress
         .append ($('<li>')
           .append '<label> Best'
           .append @best))
-      .prepend '<h2>Processing'
+      .prepend '<h2>Processing...'
 
   update: (popuration)->
     @G.text popuration.generationNumber

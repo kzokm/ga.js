@@ -31,8 +31,8 @@ class Knapsack extends GA.Resolver
         "amount prices: $#{@price.toFixed 2}, #{@weight.toFixed 1}Kg of [#{@itemNumbers}] / #{@itemNumbers.length}"
 
   resolve: (config, callback)->
-    crossover = GA.Crossover.point 2
-    mutator = GA.Mutation.binaryInversion()
+    crossover = eval "GA.Crossover.#{config.Fc}"
+    mutator = eval "GA.Mutation.#{config.Fm}"
 
     config.reproduct = (popuration)->
       selector = GA.Selector.roulette popuration
