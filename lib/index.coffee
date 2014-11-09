@@ -19,4 +19,7 @@ class GA
   @Crossover: require './crossover_operator'
   @Mutation: require './mutation_operator'
 
+  for prop, value of require './utils'
+    @[prop] ?= value
+
 module.exports = GA

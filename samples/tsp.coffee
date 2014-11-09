@@ -13,7 +13,7 @@ class TSP extends GA.Resolver
       randomRoute = (cities)->
         indexes = [1..cities.length - 1]
         for val, i in indexes
-          j = i + Math.floor Math.random() * (indexes.length - i)
+          j = i + GA.randomInt(indexes.length - i)
           indexes[i] = indexes[j]
           indexes[j] = val
         indexes
