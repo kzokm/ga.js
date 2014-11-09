@@ -8,7 +8,7 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
-require './utils'
+{randomInt} = require './utils'
 {EventEmitter} = require 'events'
 
 class Popuration extends EventEmitter
@@ -45,7 +45,7 @@ class Popuration extends EventEmitter
   sample: (sampler)->
     switch typeof sampler
       when 'undefined'
-        @get Math.floor Math.random() * @individuals.length
+        @get randomInt @individuals.length
       when 'number'
         @get sampler
       when 'function'

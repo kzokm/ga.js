@@ -8,7 +8,7 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
-require './utils'
+{randomInt} = require './utils'
 
 class Selector
   constructor: (@next)->
@@ -25,7 +25,7 @@ class Selector
     N = popuration.size()
     selector = new Selector ->
       group = for [1..size]
-        popuration.get Math.floor Math.random() * N
+        popuration.get randomInt N
       (group.sort popuration.comparator)[0]
     Object.defineProperty selector, 'size', value: size
 
