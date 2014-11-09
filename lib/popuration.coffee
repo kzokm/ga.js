@@ -68,13 +68,14 @@ class Popuration extends EventEmitter
     @individuals.forEach operator, @
     @
 
-  sum: ->
-    @individuals.reduce (sum, I)->
-      sum += I.fitness
-    , 0
-
-  average: ->
-    @sum() / @size()
+  @property 'fitness',
+    get: -> @_fitness ?=
+      sum: =>
+        @individuals.reduce (sum, I)->
+          sum += I.fitness
+        , 0
+      average: =>
+        @fitness.sum() / @size()
 
   @property 'best',
     get: -> @individuals[0]

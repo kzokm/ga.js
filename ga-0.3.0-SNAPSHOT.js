@@ -520,15 +520,24 @@ Popuration = (function(_super) {
     return this;
   };
 
-  Popuration.prototype.sum = function() {
-    return this.individuals.reduce(function(sum, I) {
-      return sum += I.fitness;
-    }, 0);
-  };
-
-  Popuration.prototype.average = function() {
-    return this.sum() / this.size();
-  };
+  Popuration.property('fitness', {
+    get: function() {
+      return this._fitness != null ? this._fitness : this._fitness = {
+        sum: (function(_this) {
+          return function() {
+            return _this.individuals.reduce(function(sum, I) {
+              return sum += I.fitness;
+            }, 0);
+          };
+        })(this),
+        average: (function(_this) {
+          return function() {
+            return _this.fitness.sum() / _this.size();
+          };
+        })(this)
+      };
+    }
+  });
 
   Popuration.property('best', {
     get: function() {
@@ -680,7 +689,7 @@ Selector = (function() {
 
   Selector.roulette = function(popuration) {
     var S;
-    S = popuration.sum();
+    S = popuration.fitness.sum();
     return new Selector(function() {
       var r, s;
       r = Math.random() * S;

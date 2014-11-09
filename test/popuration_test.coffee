@@ -146,15 +146,16 @@ describe 'Popuration', ->
       expect popuration.each -> undefined
         .to.equal popuration
 
-  describe '#sum()', ->
-    it 'should return amount fitness value of all individuals', ->
-      expect popuration.sum()
-        .to.equal 15
+  describe '#fitness', ->
+    describe '#sum()', ->
+      it 'should return amount fitness value of all individuals', ->
+        expect popuration.fitness.sum()
+          .to.equal 15
 
-  describe '#average()', ->
-    it 'should return average fitness value of all individuals', ->
-      expect popuration.average()
-        .to.equal 3
+    describe '#average()', ->
+      it 'should return average fitness value of all individuals', ->
+        expect popuration.fitness.average()
+          .to.equal 3
 
   describe '#best', ->
     it 'should return a first individual', ->

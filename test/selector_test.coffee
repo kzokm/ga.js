@@ -28,7 +28,7 @@ describe 'Selector', ->
       expect selector
         .to.be.a.instanceof Selector
 
-    sum = popuration.sum()
+    sum = popuration.fitness.sum()
     before ->
       expect sum
         .to.equal 15

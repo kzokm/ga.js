@@ -14,7 +14,7 @@ class Selector
   constructor: (@next)->
 
   @roulette: (popuration)->
-    S = popuration.sum()
+    S = popuration.fitness.sum()
     new Selector ->
       r = Math.random() * S
       s = 0

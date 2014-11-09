@@ -57,7 +57,7 @@ class TSP extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best.fitness == popuration.average()
+          popuration.best.fitness == popuration.fitness.average()
       ]
 
     super (new Popuration @Individual, config.N), config, callback

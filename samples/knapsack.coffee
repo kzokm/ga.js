@@ -48,7 +48,7 @@ class Knapsack extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best.fitness == popuration.average()
+          popuration.best.fitness == popuration.fitness.average()
       ]
 
     super (new GA.Popuration @Individual, config.N), config, callback
