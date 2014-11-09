@@ -98,7 +98,7 @@ block content
             .y (d)=> @scale @cities[d].y
 
           @route.attr
-            d: -> path popuration.best().route()
+            d: -> path popuration.best.route()
 
       class Chart extends Histogram
         constructor: ->
@@ -148,6 +148,6 @@ block content
 
       GA.Popuration::dump = ->
         "#{@generationNumber}" +
-          ", best: #{@best().fitness.toFixed 3}" +
-          ", worst: #{@worst().fitness.toFixed 3}" +
+          ", best: #{@best.fitness.toFixed 3}" +
+          ", worst: #{@worst.fitness.toFixed 3}" +
           ", ave: #{@average().toFixed 3}"

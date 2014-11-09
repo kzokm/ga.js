@@ -44,7 +44,7 @@ class TSP extends GA.Resolver
     mutator = GA.Mutation.inversion()
 
     config.reproduct = (popuration)->
-      elites = popuration.best()
+      elites = popuration.best
       selector = GA.Selector.tournament popuration, 4
       offsprings = for [1..popuration.size() / 2]
         @Individual.pair selector
@@ -57,7 +57,7 @@ class TSP extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best().fitness == popuration.average()
+          popuration.best.fitness == popuration.average()
       ]
 
     super (new Popuration @Individual, config.N), config, callback

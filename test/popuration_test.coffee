@@ -156,9 +156,9 @@ describe 'Popuration', ->
       expect popuration.average()
         .to.equal 3
 
-  describe '#best()', ->
+  describe '#best', ->
     it 'should return a first individual', ->
-      expect popuration.best()
+      expect popuration.best
         .to.equal popuration.get 0
 
   describe '#top()', ->
@@ -175,7 +175,7 @@ describe 'Popuration', ->
         .contain popuration.get 1
         .contain popuration.get 2
 
-  describe '#worst()', ->
+  describe '#worst', ->
     it 'should return a last individual', ->
-      expect popuration.worst()
+      expect popuration.worst
         .to.equal popuration.get -1

@@ -8,6 +8,7 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
+require './utils'
 {EventEmitter} = require 'events'
 
 class Popuration extends EventEmitter
@@ -75,13 +76,13 @@ class Popuration extends EventEmitter
   average: ->
     @sum() / @size()
 
-  best: ->
-    @individuals[0]
+  @property 'best',
+    get: -> @individuals[0]
 
   top: (n)->
     @individuals.slice 0, n
 
-  worst: ->
-    @individuals[@individuals.length - 1]
+  @property 'worst',
+    get: -> @individuals[@individuals.length - 1]
 
 module.exports = Popuration

@@ -36,7 +36,7 @@ class Knapsack extends GA.Resolver
 
     config.reproduct = (popuration)->
       selector = GA.Selector.roulette popuration
-      elites = popuration.best()
+      elites = popuration.best
       offsprings = for [1..popuration.size() / 2]
         @Individual.pair selector
           .crossover config.Pc, crossover
@@ -48,7 +48,7 @@ class Knapsack extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best().fitness == popuration.average()
+          popuration.best.fitness == popuration.average()
       ]
 
     super (new GA.Popuration @Individual, config.N), config, callback

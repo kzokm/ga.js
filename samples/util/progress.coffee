@@ -14,4 +14,4 @@ class @Progress
 
   update: (popuration)->
     @G.text popuration.generationNumber
-    @best.text popuration.best().dump()
+    @best.text popuration.best.dump()

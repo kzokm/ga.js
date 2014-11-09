@@ -416,6 +416,8 @@ var EventEmitter, Popuration,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+require('./utils');
+
 EventEmitter = require('events').EventEmitter;
 
 Popuration = (function(_super) {
@@ -528,17 +530,21 @@ Popuration = (function(_super) {
     return this.sum() / this.size();
   };
 
-  Popuration.prototype.best = function() {
-    return this.individuals[0];
-  };
+  Popuration.property('best', {
+    get: function() {
+      return this.individuals[0];
+    }
+  });
 
   Popuration.prototype.top = function(n) {
     return this.individuals.slice(0, n);
   };
 
-  Popuration.prototype.worst = function() {
-    return this.individuals[this.individuals.length - 1];
-  };
+  Popuration.property('worst', {
+    get: function() {
+      return this.individuals[this.individuals.length - 1];
+    }
+  });
 
   return Popuration;
 
@@ -548,7 +554,7 @@ module.exports = Popuration;
 
 
 
-},{"events":11}],7:[function(require,module,exports){
+},{"./utils":9,"events":11}],7:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -630,7 +636,7 @@ Resolver = (function(_super) {
           return fn.call(this, popuration);
         })) {
           _this.emit('terminate', popuration, config);
-          return callback_on_result != null ? callback_on_result.call(_this, popuration.best(), popuration, config) : void 0;
+          return callback_on_result != null ? callback_on_result.call(_this, popuration.best, popuration, config) : void 0;
         } else {
           return _this.processing = setTimeout(process, config.intervalMillis);
         }
