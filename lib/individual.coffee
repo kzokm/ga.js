@@ -18,6 +18,8 @@ class Individual
     get: -> @_fitnessValue ?= @fitnessFunction @chromosome
 
   mutate: (operator)->
+    if typeof operator != 'function'
+      throw TypeError "Mutation operator is not function: #{operator}"
     @chromosome = operator @chromosome
     @_fitnessValue = undefined
     @
@@ -30,6 +32,8 @@ class Individual
       @parents = [selector.next(), selector.next()]
 
     crossover: (probability, operator, parents = @parents)->
+      if typeof operator != 'function'
+        throw TypeError "Crossover operator is not function: #{operator}"
       @offsprings = if Math.random() < probability
         operator.apply @, parents.map (i)-> i.chromosome
           .map (c)=> new @Individual c
@@ -39,6 +43,8 @@ class Individual
       @
 
     mutate: (probability, operator, targets = @offsprings)->
+      if typeof operator != 'function'
+        throw TypeError "Mutation operator is not function: #{operator}"
       targets.forEach (i)->
         if Math.random() < probability
           i.mutate operator
