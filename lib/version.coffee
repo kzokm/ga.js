@@ -9,7 +9,7 @@
 ###
 
 module.exports =
-  full: '0.3.0-SNAPSHOT'
+  full: '0.3.0'
   major: 0
   minor: 3
   dot: 0

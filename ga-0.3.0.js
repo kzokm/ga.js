@@ -14,45 +14,54 @@ window.GA = require('../lib/index');
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var CrossoverOperator;
+var CrossoverOperator, randomInt;
+
+randomInt = require('./utils').randomInt;
 
 CrossoverOperator = (function() {
-  var countElements, exchange, exchangeAfter, pmx, randomLocusOf, reject;
+  var countElements, exchange, exchangeAfter, fill, partialExchange, pmx, randomLocusOf, reject;
 
   function CrossoverOperator() {}
 
   randomLocusOf = function(c) {
-    return Math.floor(Math.random() * c.length);
+    return randomInt(c.length);
   };
 
   CrossoverOperator.point = function(n) {
-    if (n === 1) {
-      return function(c1, c2) {
-        return exchangeAfter(c1, c2, randomLocusOf(c1));
-      };
-    } else if (n > 1) {
-      return function(c1, c2) {
-        ((function() {
-          var _i, _results;
-          _results = [];
-          for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
-            _results.push(randomLocusOf(c1));
-          }
-          return _results;
-        })()).sort(function(a, b) {
-          return a - b;
-        }).forEach(function(p, i) {
-          var _ref;
-          if (i > 0) {
-            p++;
-          }
-          return _ref = exchangeAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
-        });
-        return [c1, c2];
-      };
-    } else {
-      throw new Error('invalid number of crossover point: #{n}');
+    if (n == null) {
+      n = 1;
     }
+    return Object.defineProperty((function() {
+      if (n === 1) {
+        return function(c1, c2) {
+          return exchangeAfter(c1, c2, randomLocusOf(c1));
+        };
+      } else if (n > 1) {
+        return function(c1, c2) {
+          ((function() {
+            var _i, _results;
+            _results = [];
+            for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
+              _results.push(randomLocusOf(c1));
+            }
+            return _results;
+          })()).sort(function(a, b) {
+            return a - b;
+          }).forEach(function(p, i) {
+            var _ref;
+            if (i > 0) {
+              p++;
+            }
+            return _ref = exchangeAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
+          });
+          return [c1, c2];
+        };
+      } else {
+        throw new Error("invalid number of crossover point: " + n);
+      }
+    })(), 'n', {
+      value: n
+    });
   };
 
   exchangeAfter = function(c1, c2, p) {
@@ -63,7 +72,7 @@ CrossoverOperator = (function() {
     if (probability == null) {
       probability = 0.5;
     }
-    return function(c1, c2) {
+    return Object.defineProperty(function(c1, c2) {
       var i, _i, _ref;
       c1 = c1.concat();
       c2 = c2.concat();
@@ -73,7 +82,9 @@ CrossoverOperator = (function() {
         }
       }
       return [c1, c2];
-    };
+    }, 'probability', {
+      value: probability
+    });
   };
 
   exchange = function(c1, c2, pos) {
@@ -83,20 +94,84 @@ CrossoverOperator = (function() {
     return c2[pos] = temp;
   };
 
-  CrossoverOperator.OX = CrossoverOperator.order = function() {
-    return function(c1, c2) {
-      var o1, o2, p, _ref, _ref1;
-      p = randomLocusOf(c1);
-      (_ref = (o1 = c1.slice(0, p))).push.apply(_ref, reject(c2, o1));
-      (_ref1 = (o2 = c2.slice(0, p))).push.apply(_ref1, reject(c1, o2));
-      return [o1, o2];
-    };
+  CrossoverOperator.OX = CrossoverOperator.order = function(n) {
+    if (n == null) {
+      n = 2;
+    }
+    return Object.defineProperty((function() {
+      if (n === 1) {
+        return function(c1, c2) {
+          var o1, o2, p, _ref, _ref1;
+          p = randomLocusOf(c1);
+          (_ref = (o1 = c1.slice(0, p))).push.apply(_ref, reject(c2, o1));
+          (_ref1 = (o2 = c2.slice(0, p))).push.apply(_ref1, reject(c1, o2));
+          return [o1, o2];
+        };
+      } else if (n > 0) {
+        return function(c1, c2) {
+          var o1, o2, _ref;
+          _ref = partialExchange(c1, c2, n), o1 = _ref[0], o2 = _ref[1];
+          fill(o1, reject(c2, o1));
+          fill(o2, reject(c1, o2));
+          return [o1, o2];
+        };
+      } else {
+        throw new Error("invalid number of crossover point: " + n);
+      }
+    })(), 'n', {
+      value: n
+    });
   };
 
   reject = function(array, excepts) {
     return array.filter(function(e) {
       return (excepts.indexOf(e)) < 0;
     });
+  };
+
+  fill = function(array, others) {
+    var i, j, v, _i, _len;
+    j = 0;
+    for (i = _i = 0, _len = array.length; _i < _len; i = ++_i) {
+      v = array[i];
+      if (array[i] == null) {
+        array[i] = others[j++];
+      }
+    }
+    return array;
+  };
+
+  partialExchange = function(c1, c2, n) {
+    var o1, o2, prev;
+    o1 = [];
+    o2 = [];
+    prev = 0;
+    ((function() {
+      var _i, _results;
+      _results = [];
+      for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
+        _results.push(randomLocusOf(c1));
+      }
+      return _results;
+    })()).sort(function(a, b) {
+      return a - b;
+    }).forEach(function(p, i) {
+      if (i % 2) {
+        o1.push.apply(o1, c1.slice(prev, +p + 1 || 9e9));
+        o2.push.apply(o2, c2.slice(prev, +p + 1 || 9e9));
+      } else {
+        o1.length = o2.length = p;
+      }
+      return prev = p;
+    });
+    if (n % 2) {
+      o1.push.apply(o1, c1.slice(prev));
+      o2.push.apply(o2, c2.slice(prev));
+    } else {
+      o1.length = c1.length;
+      o2.length = c2.length;
+    }
+    return [o1, o2];
   };
 
   CrossoverOperator.CX = CrossoverOperator.cycle = function() {
@@ -138,35 +213,29 @@ CrossoverOperator = (function() {
     if (n == null) {
       n = 2;
     }
-    if (n === 1) {
-      return function(c1, c2) {
-        var o1, o2, p;
-        p = randomLocusOf(c1);
-        o1 = pmx(c1.slice(0, p), c2, c1);
-        o2 = pmx(c2.slice(0, p), c1, c2);
-        return [o1, o2];
-      };
-    } else if (n === 2) {
-      return function(c1, c2) {
-        var i, o1, o2, p, q, _i, _ref, _ref1;
-        p = randomLocusOf(c1);
-        q = randomLocusOf(c1);
-        if (p > q) {
-          _ref = [q, p], p = _ref[0], q = _ref[1];
-        }
-        o1 = [];
-        o2 = [];
-        for (i = _i = p, _ref1 = q - 1; p <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = p <= _ref1 ? ++_i : --_i) {
-          o1[i] = c1[i];
-          o2[i] = c2[i];
-        }
-        o1 = pmx(o1, c2, c1);
-        o2 = pmx(o2, c1, c2);
-        return [o1, o2];
-      };
-    } else {
-      throw new Error('invalid number of crossover point: #{n}');
-    }
+    return Object.defineProperty((function() {
+      if (n === 1) {
+        return function(c1, c2) {
+          var o1, o2, p;
+          p = randomLocusOf(c1);
+          o1 = pmx(c1.slice(0, p), c2, c1);
+          o2 = pmx(c2.slice(0, p), c1, c2);
+          return [o1, o2];
+        };
+      } else if (n > 1) {
+        return function(c1, c2) {
+          var o1, o2, _ref;
+          _ref = partialExchange(c1, c2, n), o1 = _ref[0], o2 = _ref[1];
+          o1 = pmx(o1, c2, c1);
+          o2 = pmx(o2, c1, c2);
+          return [o1, o2];
+        };
+      } else {
+        throw new Error("invalid number of crossover point: " + n);
+      }
+    })(), 'n', {
+      value: n
+    });
   };
 
   pmx = function(o, c1, c2) {
@@ -191,7 +260,7 @@ module.exports = CrossoverOperator;
 
 
 
-},{}],3:[function(require,module,exports){
+},{"./utils":9}],3:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -206,6 +275,8 @@ module.exports = CrossoverOperator;
 var GA;
 
 GA = (function() {
+  var prop, value, _ref;
+
   function GA() {}
 
   GA.version = require('./version');
@@ -222,6 +293,14 @@ GA = (function() {
 
   GA.Mutation = require('./mutation_operator');
 
+  _ref = require('./utils');
+  for (prop in _ref) {
+    value = _ref[prop];
+    if (GA[prop] == null) {
+      GA[prop] = value;
+    }
+  }
+
   return GA;
 
 })();
@@ -230,7 +309,7 @@ module.exports = GA;
 
 
 
-},{"./crossover_operator":2,"./individual":4,"./mutation_operator":5,"./popuration":6,"./resolver":7,"./selector":8,"./version":10}],4:[function(require,module,exports){
+},{"./crossover_operator":2,"./individual":4,"./mutation_operator":5,"./popuration":6,"./resolver":7,"./selector":8,"./utils":9,"./version":10}],4:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -260,6 +339,9 @@ Individual = (function() {
   });
 
   Individual.prototype.mutate = function(operator) {
+    if (typeof operator !== 'function') {
+      throw TypeError("Mutation operator is not function: " + operator);
+    }
     this.chromosome = operator(this.chromosome);
     this._fitnessValue = void 0;
     return this;
@@ -279,6 +361,9 @@ Individual = (function() {
       if (parents == null) {
         parents = this.parents;
       }
+      if (typeof operator !== 'function') {
+        throw TypeError("Crossover operator is not function: " + operator);
+      }
       this.offsprings = Math.random() < probability ? operator.apply(this, parents.map(function(i) {
         return i.chromosome;
       })).map((function(_this) {
@@ -296,6 +381,9 @@ Individual = (function() {
     _Class.prototype.mutate = function(probability, operator, targets) {
       if (targets == null) {
         targets = this.offsprings;
+      }
+      if (typeof operator !== 'function') {
+        throw TypeError("Mutation operator is not function: " + operator);
       }
       targets.forEach(function(i) {
         if (Math.random() < probability) {
@@ -328,7 +416,9 @@ module.exports = Individual;
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var MutationOperator, deprecated;
+var MutationOperator, deprecated, randomInt;
+
+randomInt = require('./utils').randomInt;
 
 deprecated = require('deprecated');
 
@@ -337,8 +427,8 @@ MutationOperator = (function() {
 
   function MutationOperator() {}
 
-  randomLocusOf = function(chromosome) {
-    return Math.floor(Math.random() * chromosome.length);
+  randomLocusOf = function(c) {
+    return randomInt(c.length);
   };
 
   MutationOperator.booleanInversion = function() {
@@ -401,7 +491,7 @@ module.exports = MutationOperator;
 
 
 
-},{"deprecated":12}],6:[function(require,module,exports){
+},{"./utils":9,"deprecated":12}],6:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -412,11 +502,11 @@ module.exports = MutationOperator;
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var EventEmitter, Popuration,
+var EventEmitter, Popuration, randomInt,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-require('./utils');
+randomInt = require('./utils').randomInt;
 
 EventEmitter = require('events').EventEmitter;
 
@@ -485,7 +575,7 @@ Popuration = (function(_super) {
     var selected;
     switch (typeof sampler) {
       case 'undefined':
-        return this.get(Math.floor(Math.random() * this.individuals.length));
+        return this.get(randomInt(this.individuals.length));
       case 'number':
         return this.get(sampler);
       case 'function':
@@ -678,9 +768,9 @@ module.exports = Resolver;
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var Selector;
+var Selector, randomInt;
 
-require('./utils');
+randomInt = require('./utils').randomInt;
 
 Selector = (function() {
   function Selector(next) {
@@ -712,7 +802,7 @@ Selector = (function() {
         var _i, _results;
         _results = [];
         for (_i = 1; 1 <= size ? _i <= size : _i >= size; 1 <= size ? _i++ : _i--) {
-          _results.push(popuration.get(Math.floor(Math.random() * N)));
+          _results.push(popuration.get(randomInt(N)));
         }
         return _results;
       })();
@@ -745,6 +835,12 @@ if ((_base = Function.prototype).property == null) {
   };
 }
 
+module.exports = {
+  randomInt: function(n) {
+    return Math.floor(Math.random() * n);
+  }
+};
+
 
 
 },{}],10:[function(require,module,exports){
@@ -759,7 +855,7 @@ if ((_base = Function.prototype).property == null) {
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.3.0-SNAPSHOT',
+  full: '0.3.0',
   major: 0,
   minor: 3,
   dot: 0
@@ -1110,7 +1206,4 @@ var deprecated = {
 };
 
 module.exports = deprecated;
-},{}]},{},[1])
-
-
-//# sourceMappingURL=ga-0.3.0-SNAPSHOT.js.map
+},{}]},{},[1]);
