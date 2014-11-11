@@ -65,7 +65,9 @@ describe 'samples/TSP', ->
       tsp.resolve
         N: 100
         G: 50
+        Fc: 'PMX(2)'
         Pc: 0.9
+        Fm: 'inversion()'
         Pm: 0.1
       , (result)->
         expect result.totalDistance.toFixed 3
