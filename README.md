@@ -1,4 +1,4 @@
-# Genetic Algorithm API for JavaScript
+# Genetic Algorithms Programing Library for JavaScript
 
 ## Samples
 http://ga-samples.herokuapp.com/
