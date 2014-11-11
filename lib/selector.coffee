@@ -8,24 +8,24 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
-require './utils'
+{randomInt} = require './utils'
 
 class Selector
   constructor: (@next)->
 
   @roulette: (popuration)->
-    S = popuration.sum()
+    S = popuration.fitness.sum()
     new Selector ->
       r = Math.random() * S
       s = 0
       popuration.sample (I)->
-        (s += I.fitness()) > r
+        (s += I.fitness) > r
 
   @tournament: (popuration, size = @tournament.defaultSize)->
     N = popuration.size()
     selector = new Selector ->
       group = for [1..size]
-        popuration.get Math.floor Math.random() * N
+        popuration.get randomInt N
       (group.sort popuration.comparator)[0]
     Object.defineProperty selector, 'size', value: size
 

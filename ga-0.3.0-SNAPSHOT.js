@@ -17,7 +17,7 @@ window.GA = require('../lib/index');
 var CrossoverOperator;
 
 CrossoverOperator = (function() {
-  var exchange, exchangeAfter, randomLocusOf, reject;
+  var countElements, exchange, exchangeAfter, pmx, randomLocusOf, reject;
 
   function CrossoverOperator() {}
 
@@ -30,18 +30,16 @@ CrossoverOperator = (function() {
       return function(c1, c2) {
         return exchangeAfter(c1, c2, randomLocusOf(c1));
       };
-    } else {
+    } else if (n > 1) {
       return function(c1, c2) {
-        var locus;
-        locus = (function() {
+        ((function() {
           var _i, _results;
           _results = [];
           for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
             _results.push(randomLocusOf(c1));
           }
           return _results;
-        })();
-        locus.sort(function(a, b) {
+        })()).sort(function(a, b) {
           return a - b;
         }).forEach(function(p, i) {
           var _ref;
@@ -52,6 +50,8 @@ CrossoverOperator = (function() {
         });
         return [c1, c2];
       };
+    } else {
+      throw new Error('invalid number of crossover point: #{n}');
     }
   };
 
@@ -99,8 +99,88 @@ CrossoverOperator = (function() {
     });
   };
 
-  CrossoverOperator.CS = CrossoverOperator.cycle = function() {
-    return function(c1, c2) {};
+  CrossoverOperator.CX = CrossoverOperator.cycle = function() {
+    return function(c1, c2) {
+      var length, o1, o2, p, _ref;
+      length = c1.length;
+      o1 = [];
+      o2 = [];
+      p = randomLocusOf(c1);
+      while (true) {
+        while (o1[p] == null) {
+          o1[p] = c1[p];
+          o2[p] = c2[p];
+          p = c1.indexOf(c2[p]);
+          if (p < 0) {
+            throw new Error('Invalid chromosome for cyclic crossover');
+          }
+        }
+        if ((o1.length === length && length === countElements(o1))) {
+          break;
+        }
+        while (o1[p]) {
+          p++;
+        }
+        p %= length;
+        _ref = [c2, c1], c1 = _ref[0], c2 = _ref[1];
+      }
+      return [o1, o2];
+    };
+  };
+
+  countElements = function(array) {
+    return array.reduce((function(count) {
+      return count + 1;
+    }), 0);
+  };
+
+  CrossoverOperator.PMX = function(n) {
+    if (n == null) {
+      n = 2;
+    }
+    if (n === 1) {
+      return function(c1, c2) {
+        var o1, o2, p;
+        p = randomLocusOf(c1);
+        o1 = pmx(c1.slice(0, p), c2, c1);
+        o2 = pmx(c2.slice(0, p), c1, c2);
+        return [o1, o2];
+      };
+    } else if (n === 2) {
+      return function(c1, c2) {
+        var i, o1, o2, p, q, _i, _ref, _ref1;
+        p = randomLocusOf(c1);
+        q = randomLocusOf(c1);
+        if (p > q) {
+          _ref = [q, p], p = _ref[0], q = _ref[1];
+        }
+        o1 = [];
+        o2 = [];
+        for (i = _i = p, _ref1 = q - 1; p <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = p <= _ref1 ? ++_i : --_i) {
+          o1[i] = c1[i];
+          o2[i] = c2[i];
+        }
+        o1 = pmx(o1, c2, c1);
+        o2 = pmx(o2, c1, c2);
+        return [o1, o2];
+      };
+    } else {
+      throw new Error('invalid number of crossover point: #{n}');
+    }
+  };
+
+  pmx = function(o, c1, c2) {
+    var p, _i, _ref, _results;
+    _results = [];
+    for (p = _i = 0, _ref = c1.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; p = 0 <= _ref ? ++_i : --_i) {
+      _results.push(o[p] != null ? o[p] : o[p] = (function() {
+        while (!((o.indexOf(c1[p])) < 0)) {
+          p = c2.indexOf(c1[p]);
+        }
+        return c1[p];
+      })());
+    }
+    return _results;
   };
 
   return CrossoverOperator;
@@ -163,6 +243,8 @@ module.exports = GA;
  */
 var Individual;
 
+require('./utils');
+
 Individual = (function() {
   function Individual(chromosome, fitnessFunction) {
     this.chromosome = chromosome;
@@ -171,9 +253,11 @@ Individual = (function() {
     }
   }
 
-  Individual.prototype.fitness = function() {
-    return this._fitnessValue != null ? this._fitnessValue : this._fitnessValue = this.fitnessFunction(this.chromosome);
-  };
+  Individual.property('fitness', {
+    get: function() {
+      return this._fitnessValue != null ? this._fitnessValue : this._fitnessValue = this.fitnessFunction(this.chromosome);
+    }
+  });
 
   Individual.prototype.mutate = function(operator) {
     this.chromosome = operator(this.chromosome);
@@ -233,7 +317,7 @@ module.exports = Individual;
 
 
 
-},{}],5:[function(require,module,exports){
+},{"./utils":9}],5:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -332,6 +416,8 @@ var EventEmitter, Popuration,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+require('./utils');
+
 EventEmitter = require('events').EventEmitter;
 
 Popuration = (function(_super) {
@@ -420,10 +506,10 @@ Popuration = (function(_super) {
 
   Popuration.comparator = comparator = {
     asc: function(i1, i2) {
-      return i1.fitness() - i2.fitness();
+      return i1.fitness - i2.fitness;
     },
     desc: function(i1, i2) {
-      return i2.fitness() - i1.fitness();
+      return i2.fitness - i1.fitness;
     }
   };
 
@@ -434,27 +520,40 @@ Popuration = (function(_super) {
     return this;
   };
 
-  Popuration.prototype.sum = function() {
-    return this.individuals.reduce(function(sum, I) {
-      return sum += I.fitness();
-    }, 0);
-  };
+  Popuration.property('fitness', {
+    get: function() {
+      return this._fitness != null ? this._fitness : this._fitness = {
+        sum: (function(_this) {
+          return function() {
+            return _this.individuals.reduce(function(sum, I) {
+              return sum += I.fitness;
+            }, 0);
+          };
+        })(this),
+        average: (function(_this) {
+          return function() {
+            return _this.fitness.sum() / _this.size();
+          };
+        })(this)
+      };
+    }
+  });
 
-  Popuration.prototype.average = function() {
-    return this.sum() / this.size();
-  };
-
-  Popuration.prototype.best = function() {
-    return this.individuals[0];
-  };
+  Popuration.property('best', {
+    get: function() {
+      return this.individuals[0];
+    }
+  });
 
   Popuration.prototype.top = function(n) {
     return this.individuals.slice(0, n);
   };
 
-  Popuration.prototype.worst = function() {
-    return this.individuals[this.individuals.length - 1];
-  };
+  Popuration.property('worst', {
+    get: function() {
+      return this.individuals[this.individuals.length - 1];
+    }
+  });
 
   return Popuration;
 
@@ -464,7 +563,7 @@ module.exports = Popuration;
 
 
 
-},{"events":11}],7:[function(require,module,exports){
+},{"./utils":9,"events":11}],7:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -546,7 +645,7 @@ Resolver = (function(_super) {
           return fn.call(this, popuration);
         })) {
           _this.emit('terminate', popuration, config);
-          return callback_on_result != null ? callback_on_result.call(_this, popuration.best(), popuration, config) : void 0;
+          return callback_on_result != null ? callback_on_result.call(_this, popuration.best, popuration, config) : void 0;
         } else {
           return _this.processing = setTimeout(process, config.intervalMillis);
         }
@@ -590,13 +689,13 @@ Selector = (function() {
 
   Selector.roulette = function(popuration) {
     var S;
-    S = popuration.sum();
+    S = popuration.fitness.sum();
     return new Selector(function() {
       var r, s;
       r = Math.random() * S;
       s = 0;
       return popuration.sample(function(I) {
-        return (s += I.fitness()) > r;
+        return (s += I.fitness) > r;
       });
     });
   };
@@ -660,10 +759,10 @@ if ((_base = Function.prototype).property == null) {
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.2.2',
+  full: '0.3.0-SNAPSHOT',
   major: 0,
-  minor: 2,
-  dot: 2
+  minor: 3,
+  dot: 0
 };
 
 
@@ -1011,4 +1110,7 @@ var deprecated = {
 };
 
 module.exports = deprecated;
-},{}]},{},[1]);
+},{}]},{},[1])
+
+
+//# sourceMappingURL=ga-0.3.0-SNAPSHOT.js.map

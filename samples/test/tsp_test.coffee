@@ -40,10 +40,10 @@ describe 'samples/TSP', ->
           expect individual.chromosome.sort (a,b)-> a - b
             .to.deep.equal sequence
 
-    describe '#fitness()', ->
+    describe '#fitness', ->
       it 'shold return a number, is greater than 0', ->
         individual = new Individual
-        expect individual.fitness()
+        expect individual.fitness
           .to.be.a 'number'
           .is.greaterThan 0
 
@@ -65,7 +65,9 @@ describe 'samples/TSP', ->
       tsp.resolve
         N: 100
         G: 50
+        Fc: 'PMX(2)'
         Pc: 0.9
+        Fm: 'inversion()'
         Pm: 0.1
       , (result)->
         expect result.totalDistance.toFixed 3

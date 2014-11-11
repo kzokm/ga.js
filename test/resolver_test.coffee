@@ -59,7 +59,7 @@ describe 'Resolver', ->
         expect @
           .to.equal resolver
         expect Array::slice.apply arguments
-          .to.deep.equal [popuration.best(), popuration, config]
+          .to.deep.equal [popuration.best, popuration, config]
         expect popuration.generationNumber
           .to.equal terminate
           .that.equals numReprocucted

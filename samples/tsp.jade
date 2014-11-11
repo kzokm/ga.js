@@ -31,14 +31,28 @@ block content
       label Maximum Generation
       input#G(type='number' value='500')
 
+    br
     .input
-      label Crossover Rate
-      input#Pc(type='number' value='90.0')
+      label Crossover
+      select#Fc
+        option OX(1)
+        option(selected) OX(2)
+        option CX()
+        option PMX(1)
+        option PMX(2)
+    .input
+      label Rate
+      input#Pc(type='number' value='100.0')
       | %
 
     .input
-      label Mutation Rate
-      input#Pm(type='number' value='5.0')
+      label Mutation
+      select#Fm
+        option exchange()
+        option(selected) inversion()
+    .input
+      label Rate
+      input#Pm(type='number' value='10.0')
       | %
 
     .input
@@ -98,7 +112,7 @@ block content
             .y (d)=> @scale @cities[d].y
 
           @route.attr
-            d: -> path popuration.best().route()
+            d: -> path popuration.best.route()
 
       class Chart extends Histogram
         constructor: ->
@@ -133,7 +147,9 @@ block content
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()
+              Fc: $('#Fc').val()
               Pc: $('#Pc').val() / 100
+              Fm: $('#Fm').val()
               Pm: $('#Pm').val() / 100
               #intervalMillis: 1000
             , (result, popuration)->
@@ -148,6 +164,6 @@ block content
 
       GA.Popuration::dump = ->
         "#{@generationNumber}" +
-          ", best: #{@best().fitness().toFixed 3}" +
-          ", worst: #{@worst().fitness().toFixed 3}" +
-          ", ave: #{@average().toFixed 3}"
+          ", best: #{@best.fitness.toFixed 3}" +
+          ", worst: #{@worst.fitness.toFixed 3}" +
+          ", ave: #{@fitness.average().toFixed 3}"

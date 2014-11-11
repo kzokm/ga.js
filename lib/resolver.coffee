@@ -49,7 +49,7 @@ class Resolver extends EventEmitter
         @emit 'reproduct', popuration, config
       if (terminates.some (fn)-> fn.call @, popuration)
         @emit 'terminate', popuration, config
-        callback_on_result?.call @, popuration.best(), popuration, config
+        callback_on_result?.call @, popuration.best, popuration, config
       else
         @processing = setTimeout process, config.intervalMillis
     @processing = setTimeout process, config.intervalMillis

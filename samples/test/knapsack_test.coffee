@@ -39,10 +39,10 @@ describe 'samples/Knapsack', ->
         expect individual.chromosome
           .to.equal chromosome
 
-    describe '#fitness()', ->
+    describe '#fitness', ->
       it 'shold return a number, is greater than 0', ->
         individual = new Individual []
-        expect individual.fitness()
+        expect individual.fitness
           .to.be.a 'number'
           .is.greaterThan 0
 
@@ -58,7 +58,9 @@ describe 'samples/Knapsack', ->
       knapsack.resolve
         N: 100
         G: 50
+        Fc: 'point(2)'
         Pc: 0.9
+        Fm: 'booleanInversion()'
         Pm: 0.1
       , (result)->
         expect result.price

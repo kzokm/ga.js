@@ -8,11 +8,11 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
+{randomInt} = require './utils'
 deprecated = require 'deprecated'
 
 class MutationOperator
-  randomLocusOf = (chromosome)->
-    Math.floor Math.random() * chromosome.length
+  randomLocusOf = (c)-> randomInt c.length
 
   @booleanInversion: ->
     @substitution (gene)-> !gene

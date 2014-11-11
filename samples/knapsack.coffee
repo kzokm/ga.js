@@ -27,16 +27,16 @@ class Knapsack extends GA.Resolver
       fitnessOffset: 0.1
 
       dump: ->
-        @fitness()
+        @fitness
         "amount prices: $#{@price.toFixed 2}, #{@weight.toFixed 1}Kg of [#{@itemNumbers}] / #{@itemNumbers.length}"
 
   resolve: (config, callback)->
-    crossover = GA.Crossover.point 2
-    mutator = GA.Mutation.binaryInversion()
+    crossover = eval "GA.Crossover.#{config.Fc}"
+    mutator = eval "GA.Mutation.#{config.Fm}"
 
     config.reproduct = (popuration)->
       selector = GA.Selector.roulette popuration
-      elites = popuration.best()
+      elites = popuration.best
       offsprings = for [1..popuration.size() / 2]
         @Individual.pair selector
           .crossover config.Pc, crossover
@@ -48,7 +48,7 @@ class Knapsack extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best().fitness() == popuration.average()
+          popuration.best.fitness == popuration.fitness.average()
       ]
 
     super (new GA.Popuration @Individual, config.N), config, callback

@@ -13,33 +13,38 @@ describe 'Individual', ->
       expect individual
         .to.have.property 'chromosome', 'ABC'
 
-  describe '#fitness()', ->
+  describe '#fitness', ->
     class IndividualWithFitnessFunction extends Individual
       fitnessFunction: -> "f(#{@chromosome})"
 
-    it 'should return fitness value calculated by fitness function', ->
+    it 'should be readonly', ->
+      individual= new Individual
+      expect -> individual.fitness = 0
+        .to.throw TypeError, 'which has only a getter'
+
+    it 'should be fitness value calculated by fitness function', ->
       individual = new IndividualWithFitnessFunction 'ABC'
-      expect individual.fitness()
+      expect individual.fitness
         .to.equal 'f(ABC)'
 
-    it 'can return personalized fitness value instead of prototyped function', ->
+    it 'can be personalized fitness value instead of prototyped function', ->
       individual = new IndividualWithFitnessFunction 'ABC', -> 999
-      expect individual.fitness()
+      expect individual.fitness
         .to.equal 999
 
     it 'should throw error if not defined fitnessFunction', ->
-      expect -> (new Individual 'ABC').fitness()
+      expect -> (new Individual 'ABC').fitness
         .to.throw TypeError, /has no method/
 
-    it 'should cache fitness value', ->
+    it 'should cache latest value', ->
       individual = new IndividualWithFitnessFunction 'ABC'
-      expect individual.fitness()
+      expect individual.fitness
         .to.equal 'f(ABC)'
 
       individual.chromosome = 'XYZ'
-      expect individual.fitness()
+      expect individual.fitness
         .to.equal 'f(ABC)'
 
       individual._fitnessValue = undefined
-      expect individual.fitness()
+      expect individual.fitness
         .to.equal 'f(XYZ)'

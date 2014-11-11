@@ -20,10 +20,10 @@ test = (src)->
     @emit 'end'
 
 gulp.task 'test', ->
-  test 'test/**/*.coffee'
-
-gulp.task 'samples:test', ->
-  test 'samples/test/**/*.coffee'
+  test [
+    'test/**/*.coffee'
+    'samples/test/**/*.coffee'
+  ]
 
 browserify = require 'browserify'
 exorcist = require 'exorcist'
@@ -60,8 +60,6 @@ gulp.task 'watch', ['compress'], ->
   gulp.watch 'test/*.coffee', (e)->
     test e.path unless e.type == 'deleted'
 
-gulp.task 'samples:watch', ['watch', 'samples:test'], ->
-  gulp.watch 'lib/*.coffee', ['samples:test']
   gulp.watch 'samples/test/*.coffee', (e)->
     unless e.type == 'deleted'
       src = e.path.replace /\\/g, '/'
@@ -72,14 +70,14 @@ gulp.task 'samples:watch', ['watch', 'samples:test'], ->
         .replace /([a-z]*).coffee/, 'test/$1_test.coffee'
       test src
 
-gulp.task 'server', ['samples:watch'], ->
+gulp.task 'server', ->
   app = require './samples/server'
   app.set 'port', process.env.PORT || 3000
 
   server = app.listen app.get('port'), ->
     console.log 'Express server listening on port ' + server.address().port
 
-  gulp.watch 'samples/server.coffee', (e)->
+  gulp.watch ['samples/server.coffee', 'lib/version.coffee'], (e)->
     server.close ->
       server = app.listen app.get('port'), ->
         console.log 'Restart server listening on port ' + server.address().port

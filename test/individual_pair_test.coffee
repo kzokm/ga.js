@@ -43,13 +43,13 @@ describe 'Individual.pair', ->
 
   describe '#crossover()', ->
     it 'shold return pair it self', ->
-      expect pair.crossover()
+      expect pair.crossover 0, (->)
         .to.equal pair
 
     it 'should create property offsprings', ->
       expect pair
         .to.not.have.property 'offsprings'
-      pair.crossover()
+      pair.crossover 0, (->)
       expect pair
         .to.have.property 'offsprings'
 
@@ -96,14 +96,14 @@ describe 'Individual.pair', ->
       pair.offsprings = [new Individual '0000']
 
     it 'shold return pair it self', ->
-      expect pair.mutate()
+      expect pair.mutate 0, (->)
         .to.equal pair
 
     it 'should mutate offsprings and rewrite chromosome directory', ->
       offspring = pair.offsprings[0]
       expect offspring.chromosome
         .to.deep.equal [0, 0, 0, 0]
-      expect offspring.fitness()
+      expect offspring.fitness
         .to.equal 0
 
       pair.mutate 1, ->
@@ -117,7 +117,7 @@ describe 'Individual.pair', ->
         .to.deep.equal [offspring]
       expect offspring.chromosome
         .to.deep.equal [1, 1, 1, 1]
-      expect offspring.fitness()
+      expect offspring.fitness
         .to.equal 4
 
     it 'should not work if not enough probability', ->

@@ -8,6 +8,7 @@
 # http://opensource.org/licenses/mit-license.php
 ###
 
+{randomInt} = require './utils'
 {EventEmitter} = require 'events'
 
 class Popuration extends EventEmitter
@@ -44,7 +45,7 @@ class Popuration extends EventEmitter
   sample: (sampler)->
     switch typeof sampler
       when 'undefined'
-        @get Math.floor Math.random() * @individuals.length
+        @get randomInt @individuals.length
       when 'number'
         @get sampler
       when 'function'
@@ -58,8 +59,8 @@ class Popuration extends EventEmitter
     @
 
   @comparator: comparator =
-    asc: (i1, i2)-> i1.fitness() - i2.fitness()
-    desc: (i1, i2)-> i2.fitness() - i1.fitness()
+    asc: (i1, i2)-> i1.fitness - i2.fitness
+    desc: (i1, i2)-> i2.fitness - i1.fitness
 
   comparator: comparator.desc
 
@@ -67,21 +68,22 @@ class Popuration extends EventEmitter
     @individuals.forEach operator, @
     @
 
-  sum: ->
-    @individuals.reduce (sum, I)->
-      sum += I.fitness()
-    , 0
+  @property 'fitness',
+    get: -> @_fitness ?=
+      sum: =>
+        @individuals.reduce (sum, I)->
+          sum += I.fitness
+        , 0
+      average: =>
+        @fitness.sum() / @size()
 
-  average: ->
-    @sum() / @size()
-
-  best: ->
-    @individuals[0]
+  @property 'best',
+    get: -> @individuals[0]
 
   top: (n)->
     @individuals.slice 0, n
 
-  worst: ->
-    @individuals[@individuals.length - 1]
+  @property 'worst',
+    get: -> @individuals[@individuals.length - 1]
 
 module.exports = Popuration

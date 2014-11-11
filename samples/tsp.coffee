@@ -13,7 +13,7 @@ class TSP extends GA.Resolver
       randomRoute = (cities)->
         indexes = [1..cities.length - 1]
         for val, i in indexes
-          j = i + Math.floor Math.random() * (indexes.length - i)
+          j = i + GA.randomInt(indexes.length - i)
           indexes[i] = indexes[j]
           indexes[j] = val
         indexes
@@ -33,18 +33,18 @@ class TSP extends GA.Resolver
         [].concat 0, @chromosome, 0
 
       dump: ->
-        @fitness()
+        @fitness
         "total distance: #{@totalDistance.toFixed 3}Km around [#{@route()}]"
 
   class Popuration extends GA.Popuration
     comparator: Popuration.comparator.asc
 
   resolve: (config, callback)->
-    crossover = GA.Crossover.OX()
-    mutator = GA.Mutation.inversion()
+    crossover = eval "GA.Crossover.#{config.Fc}"
+    mutator = eval "GA.Mutation.#{config.Fm}"
 
     config.reproduct = (popuration)->
-      elites = popuration.best()
+      elites = popuration.best
       selector = GA.Selector.tournament popuration, 4
       offsprings = for [1..popuration.size() / 2]
         @Individual.pair selector
@@ -57,7 +57,7 @@ class TSP extends GA.Resolver
     config.terminate = [
         config.G
         (popuration)->
-          popuration.best().fitness() == popuration.average()
+          popuration.best.fitness == popuration.fitness.average()
       ]
 
     super (new Popuration @Individual, config.N), config, callback

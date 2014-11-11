@@ -35,13 +35,25 @@ block content
       label Maximum Generation
       input#G(type='number' value='500')
 
+    br
     .input
-      label Crossover Rate
-      input#Pc(type='number' value='90.0')
+      label Crossover
+      select#Fc
+        option point(1)
+        option point(2)
+        option(selected) uniform()
+    .input
+      label Rate
+      input#Pc(type='number' value='95.0')
       | %
 
     .input
-      label Mutation Rate
+      label Mutation
+      select#Fm
+        option(value="booleanInversion()") substitution()
+        option(selected) inversion()
+    .input
+      label Rate
       input#Pm(type='number' value='5.0')
       | %
 
@@ -80,7 +92,9 @@ block content
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()
+              Fc: $('#Fc').val()
               Pc: $('#Pc').val() / 100
+              Fm: $('#Fm').val()
               Pm: $('#Pm').val() / 100
               #intervalMillis: 1000
             , (result, popuration)->
@@ -95,6 +109,6 @@ block content
 
       GA.Popuration::dump = ->
         "#{@generationNumber}" +
-          ", best: #{@best().fitness().toFixed 2}" +
-          ", worst: #{@worst().fitness().toFixed 2}" +
-          ", ave: #{@average().toFixed 2}"
+          ", best: #{@best.fitness.toFixed 2}" +
+          ", worst: #{@worst.fitness.toFixed 2}" +
+          ", ave: #{@fitness.average().toFixed 2}"
