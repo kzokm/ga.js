@@ -77,7 +77,7 @@ gulp.task 'server', ->
   server = app.listen app.get('port'), ->
     console.log 'Express server listening on port ' + server.address().port
 
-  gulp.watch 'samples/server.coffee', (e)->
+  gulp.watch ['samples/server.coffee', 'lib/version.coffee'], (e)->
     server.close ->
       server = app.listen app.get('port'), ->
         console.log 'Restart server listening on port ' + server.address().port
