@@ -34,24 +34,24 @@ class Knapsack extends GA.Resolver
     crossover = eval "GA.Crossover.#{config.Fc}"
     mutator = eval "GA.Mutation.#{config.Fm}"
 
-    config.reproduct = (popuration)->
-      selector = GA.Selector.roulette popuration
-      elites = popuration.best
-      offsprings = for [1..popuration.size() / 2]
+    config.reproduct = (population)->
+      selector = GA.Selector.roulette population
+      elites = population.best
+      offsprings = for [1..population.size() / 2]
         @Individual.pair selector
           .crossover config.Pc, crossover
           .mutate config.Pm, mutator
           .offsprings
-      popuration.set [].concat offsprings...
-      popuration.add elites
+      population.set [].concat offsprings...
+      population.add elites
 
     config.terminate = [
         config.G
-        (popuration)->
-          popuration.best.fitness == popuration.fitness.average()
+        (population)->
+          population.best.fitness == population.fitness.average()
       ]
 
-    super (new GA.Popuration @Individual, config.N), config, callback
+    super (new GA.Population @Individual, config.N), config, callback
 
 if window?
   window.Knapsack = Knapsack

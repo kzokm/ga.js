@@ -10,11 +10,11 @@ describe 'Selector', ->
   random = require './lib/pesudo_random'
     .attach()
 
-  Popuration = require '../lib/popuration'
+  Population = require '../lib/population'
   class Individual extends require '../lib/individual'
     fitnessFunction: -> @chromosome
 
-  popuration = new Popuration Individual
+  population = new Population Individual
     .add new Individual 1
     .add new Individual 3
     .add new Individual 5
@@ -22,13 +22,13 @@ describe 'Selector', ->
     .add new Individual 2
 
   describe '.roulette()', ->
-    selector = Selector.roulette popuration
+    selector = Selector.roulette population
 
     it 'should return a instance of Selector', ->
       expect selector
         .to.be.a.instanceof Selector
 
-    sum = popuration.fitness.sum()
+    sum = population.fitness.sum()
     before ->
       expect sum
         .to.equal 15
@@ -40,7 +40,7 @@ describe 'Selector', ->
         0
       else ((
         for i in [0..n - 1]
-          popuration.get i
+          population.get i
             .fitness
         ).reduce (sum, f)->
           sum += f
@@ -54,30 +54,30 @@ describe 'Selector', ->
       it 'can return 1st individual', ->
         random.push probability 0
         expect selector.next()
-          .to.equal popuration.get 0
+          .to.equal population.get 0
 
         random.push probability -1
         expect selector.next()
-          .to.equal popuration.get 0
+          .to.equal population.get 0
 
       it 'can return 2nd individual', ->
         random.push probability 1
         expect selector.next()
-          .to.equal popuration.get 1
+          .to.equal population.get 1
 
         random.push probability -2
         expect selector.next()
-          .to.equal popuration.get 1
+          .to.equal population.get 1
 
       it 'can return 3rd individual', ->
         random.push probability 2
         expect selector.next()
-          .to.equal popuration.get 2
+          .to.equal population.get 2
 
       it 'can return last individual', ->
         random.push random.MAX_VALUE
         expect selector.next()
-          .to.equal popuration.get -1
+          .to.equal population.get -1
 
       it 'should return undefiend if random value is illegal ', ->
         random.push 1
@@ -85,7 +85,7 @@ describe 'Selector', ->
           .to.be.undefined
 
   describe '.tournament()', ->
-    selector = Selector.tournament popuration
+    selector = Selector.tournament population
 
     it 'should return a instance of Selector', ->
       expect selector
@@ -102,7 +102,7 @@ describe 'Selector', ->
       else if n == 0
         0
       else
-        n / popuration.size()
+        n / population.size()
 
     describe '#next', ->
       it 'can return 1st individual', ->
@@ -110,21 +110,21 @@ describe 'Selector', ->
           random.push probability 0
         random.push probability 1 # one more probability
         expect selector.next()
-          .to.equal popuration.get 0
+          .to.equal population.get 0
 
       it 'can return 2nd individual', ->
         for [1..selector.size - 1]
           random.push probability 0
         random.push probability 1
         expect selector.next()
-          .to.equal popuration.get 1
+          .to.equal population.get 1
 
       it 'can return last individual', ->
         for [1..selector.size - 1]
           random.push probability 0
         random.push random.MAX_VALUE
         expect selector.next()
-          .to.equal popuration.get -1
+          .to.equal population.get -1
 
       it 'should return undefiend if random value is illegal ', ->
         for [1..selector.size]

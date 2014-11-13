@@ -13,7 +13,7 @@
 class GA
   @version: require './version'
   @Resolver: require './resolver'
-  @Popuration: require './popuration'
+  @Population: require './population'
   @Individual: require './individual'
   @Selector: require './selector'
   @Crossover: require './crossover_operator'

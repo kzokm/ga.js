@@ -7,16 +7,16 @@ describe 'Resolver', ->
     expect Resolver
       .to.be.a 'function'
 
-  Popuration = require '../lib/popuration'
+  Population = require '../lib/population'
 
   describe '#resolve', ->
-    popuration = undefined
+    population = undefined
     beforeEach ->
-      popuration = new Popuration
+      population = new Population
 
     it 'should return resolver it self', ->
       resolver = new Resolver
-      expect resolver.resolve popuration,
+      expect resolver.resolve population,
         reproduct: ->
         terminate: 0
       .to.equal resolver
@@ -34,33 +34,33 @@ describe 'Resolver', ->
         expect @
           .to.equal resolver
         expect Array::slice.apply arguments
-          .to.deep.equal [popuration, config]
-        expect popuration.generationNumber
+          .to.deep.equal [population, config]
+        expect population.generationNumber
           .to.equal numReprocucted++
-        popuration
+        population
       .on 'reproduct', ->
         expect @
           .to.equal resolver
         expect Array::slice.apply arguments
-          .to.deep.equal [popuration, config]
-        expect popuration.generationNumber
+          .to.deep.equal [population, config]
+        expect population.generationNumber
           .to.equal numReprocucted
         numReprocuctHandlerCalled++
       .on 'terminate', ->
         expect @
           .to.equal resolver
         expect Array::slice.apply arguments
-          .to.deep.equal [popuration, config]
-        expect popuration.generationNumber
+          .to.deep.equal [population, config]
+        expect population.generationNumber
           .to.equal terminate
           .that.equals numReprocuctHandlerCalled
         numTerminateHandlerCalled++
-      .resolve popuration, config, ->
+      .resolve population, config, ->
         expect @
           .to.equal resolver
         expect Array::slice.apply arguments
-          .to.deep.equal [popuration.best, popuration, config]
-        expect popuration.generationNumber
+          .to.deep.equal [population.best, population, config]
+        expect population.generationNumber
           .to.equal terminate
           .that.equals numReprocucted
           .that.equals numReprocuctHandlerCalled
@@ -79,31 +79,31 @@ describe 'Resolver', ->
               .to.be.above 100
               .to.be.below 120
           prev = current
-          popuration
+          population
         terminate: 10
-      .resolve popuration, ->
+      .resolve population, ->
         done()
 
     it 'should terminate initiazlied condition', (done)->
       new Resolver (->), terminate: 3
-        .resolve popuration, ->
-          expect popuration.generationNumber
+        .resolve population, ->
+          expect population.generationNumber
             .to.equal 3
           done()
 
     it 'can override termination condition', (done)->
       new Resolver (->), terminate: 3
-        .resolve popuration, terminate: 5, ->
-          expect popuration.generationNumber
+        .resolve population, terminate: 5, ->
+          expect population.generationNumber
             .to.equal 5
           done()
 
     it 'should terminate when matching any conditions', (done)->
       new Resolver (->), terminate: [
-        -> popuration.generationNumber == 5
-        -> popuration.generationNumber == 3
+        -> population.generationNumber == 5
+        -> population.generationNumber == 3
         ]
-      .resolve popuration, ->
-        expect popuration.generationNumber
+      .resolve population, ->
+        expect population.generationNumber
           .to.equal 3
         done()

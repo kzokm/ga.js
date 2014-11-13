@@ -19,7 +19,7 @@ class Resolver extends EventEmitter
     config.reproduct ?= @reproduct
     @config = config
 
-  resolve: (popuration, config = {}, callback_on_result)->
+  resolve: (population, config = {}, callback_on_result)->
     if typeof config == 'function'
       callback_on_result = config
       config = {}
@@ -33,23 +33,23 @@ class Resolver extends EventEmitter
     terminates = [].concat config.terminate
       .map (fn)->
         if typeof fn == 'number'
-          do (limit = fn)-> (popuration)->
-            popuration.generationNumber >= limit
+          do (limit = fn)-> (population)->
+            population.generationNumber >= limit
         else
           fn
     terminates.unshift => !@processing
 
-    popuration.sort()
-    popuration.generationNumber = generationNumber = 0
+    population.sort()
+    population.generationNumber = generationNumber = 0
     process = =>
       if @processing
-        popuration = ((config.reproduct.call @, popuration, config) ? popuration)
+        population = ((config.reproduct.call @, population, config) ? population)
           .sort()
-        popuration.generationNumber = ++generationNumber
-        @emit 'reproduct', popuration, config
-      if (terminates.some (fn)-> fn.call @, popuration)
-        @emit 'terminate', popuration, config
-        callback_on_result?.call @, popuration.best, popuration, config
+        population.generationNumber = ++generationNumber
+        @emit 'reproduct', population, config
+      if (terminates.some (fn)-> fn.call @, population)
+        @emit 'terminate', population, config
+        callback_on_result?.call @, population.best, population, config
       else
         @processing = setTimeout process, config.intervalMillis
     @processing = setTimeout process, config.intervalMillis

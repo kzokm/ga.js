@@ -36,31 +36,31 @@ class TSP extends GA.Resolver
         @fitness
         "total distance: #{@totalDistance.toFixed 3}Km around [#{@route()}]"
 
-  class Popuration extends GA.Popuration
-    comparator: Popuration.comparator.asc
+  class Population extends GA.Population
+    comparator: Population.comparator.asc
 
   resolve: (config, callback)->
     crossover = eval "GA.Crossover.#{config.Fc}"
     mutator = eval "GA.Mutation.#{config.Fm}"
 
-    config.reproduct = (popuration)->
-      elites = popuration.best
-      selector = GA.Selector.tournament popuration, 4
-      offsprings = for [1..popuration.size() / 2]
+    config.reproduct = (population)->
+      elites = population.best
+      selector = GA.Selector.tournament population, 4
+      offsprings = for [1..population.size() / 2]
         @Individual.pair selector
           .crossover config.Pc, crossover
           .mutate config.Pm, mutator
           .offsprings
-      popuration.set [].concat offsprings...
-      popuration.add elites
+      population.set [].concat offsprings...
+      population.add elites
 
     config.terminate = [
         config.G
-        (popuration)->
-          popuration.best.fitness == popuration.fitness.average()
+        (population)->
+          population.best.fitness == population.fitness.average()
       ]
 
-    super (new Popuration @Individual, config.N), config, callback
+    super (new Population @Individual, config.N), config, callback
 
 
 

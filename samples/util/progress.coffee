@@ -12,6 +12,6 @@ class @Progress
           .append @best))
       .prepend '<h2>Processing...'
 
-  update: (popuration)->
-    @G.text popuration.generationNumber
-    @best.text popuration.best.dump()
+  update: (population)->
+    @G.text population.generationNumber
+    @best.text population.best.dump()
