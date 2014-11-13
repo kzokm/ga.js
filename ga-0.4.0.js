@@ -283,7 +283,7 @@ GA = (function() {
 
   GA.Resolver = require('./resolver');
 
-  GA.Popuration = require('./popuration');
+  GA.Population = require('./population');
 
   GA.Individual = require('./individual');
 
@@ -309,7 +309,7 @@ module.exports = GA;
 
 
 
-},{"./crossover_operator":2,"./individual":4,"./mutation_operator":5,"./popuration":6,"./resolver":7,"./selector":8,"./utils":9,"./version":10}],4:[function(require,module,exports){
+},{"./crossover_operator":2,"./individual":4,"./mutation_operator":5,"./population":6,"./resolver":7,"./selector":8,"./utils":9,"./version":10}],4:[function(require,module,exports){
 
 /*
  * Genetic Algorithm API for JavaScript
@@ -502,7 +502,7 @@ module.exports = MutationOperator;
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var EventEmitter, Popuration, randomInt,
+var EventEmitter, Population, randomInt,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -510,22 +510,22 @@ randomInt = require('./utils').randomInt;
 
 EventEmitter = require('events').EventEmitter;
 
-Popuration = (function(_super) {
+Population = (function(_super) {
   var comparator;
 
-  __extends(Popuration, _super);
+  __extends(Population, _super);
 
-  function Popuration(Individual, popurationSize) {
+  function Population(Individual, populationSize) {
     this.Individual = Individual;
-    if (popurationSize == null) {
-      popurationSize = 0;
+    if (populationSize == null) {
+      populationSize = 0;
     }
     this.generationNumber = 0;
     this.individuals = (function() {
       var _i, _results;
-      if (popurationSize > 1) {
+      if (populationSize > 1) {
         _results = [];
-        for (_i = 1; 1 <= popurationSize ? _i <= popurationSize : _i >= popurationSize; 1 <= popurationSize ? _i++ : _i--) {
+        for (_i = 1; 1 <= populationSize ? _i <= populationSize : _i >= populationSize; 1 <= populationSize ? _i++ : _i--) {
           _results.push(new Individual);
         }
         return _results;
@@ -535,28 +535,28 @@ Popuration = (function(_super) {
     })();
   }
 
-  Popuration.prototype.size = function() {
+  Population.prototype.size = function() {
     return this.individuals.length;
   };
 
-  Popuration.prototype.set = function(individuals) {
+  Population.prototype.set = function(individuals) {
     this.individuals = individuals;
     return this;
   };
 
-  Popuration.prototype.add = function(individual) {
+  Population.prototype.add = function(individual) {
     this.individuals.push(individual);
     return this;
   };
 
-  Popuration.prototype.get = function(index) {
+  Population.prototype.get = function(index) {
     if (index < 0) {
       index = this.individuals.length + index;
     }
     return this.individuals[index];
   };
 
-  Popuration.prototype.remove = function(individual) {
+  Population.prototype.remove = function(individual) {
     var index;
     if (typeof individual === 'number') {
       index = individual;
@@ -571,7 +571,7 @@ Popuration = (function(_super) {
     }
   };
 
-  Popuration.prototype.sample = function(sampler) {
+  Population.prototype.sample = function(sampler) {
     var selected;
     switch (typeof sampler) {
       case 'undefined':
@@ -589,12 +589,12 @@ Popuration = (function(_super) {
     }
   };
 
-  Popuration.prototype.sort = function() {
+  Population.prototype.sort = function() {
     this.individuals.sort(this.comparator);
     return this;
   };
 
-  Popuration.comparator = comparator = {
+  Population.comparator = comparator = {
     asc: function(i1, i2) {
       return i1.fitness - i2.fitness;
     },
@@ -603,14 +603,14 @@ Popuration = (function(_super) {
     }
   };
 
-  Popuration.prototype.comparator = comparator.desc;
+  Population.prototype.comparator = comparator.desc;
 
-  Popuration.prototype.each = function(operator) {
+  Population.prototype.each = function(operator) {
     this.individuals.forEach(operator, this);
     return this;
   };
 
-  Popuration.property('fitness', {
+  Population.property('fitness', {
     get: function() {
       return this._fitness != null ? this._fitness : this._fitness = {
         sum: (function(_this) {
@@ -629,27 +629,27 @@ Popuration = (function(_super) {
     }
   });
 
-  Popuration.property('best', {
+  Population.property('best', {
     get: function() {
       return this.individuals[0];
     }
   });
 
-  Popuration.prototype.top = function(n) {
+  Population.prototype.top = function(n) {
     return this.individuals.slice(0, n);
   };
 
-  Popuration.property('worst', {
+  Population.property('worst', {
     get: function() {
       return this.individuals[this.individuals.length - 1];
     }
   });
 
-  return Popuration;
+  return Population;
 
 })(EventEmitter);
 
-module.exports = Popuration;
+module.exports = Population;
 
 
 
@@ -688,7 +688,7 @@ Resolver = (function(_super) {
     this.config = config;
   }
 
-  Resolver.prototype.resolve = function(popuration, config, callback_on_result) {
+  Resolver.prototype.resolve = function(population, config, callback_on_result) {
     var generationNumber, key, process, terminates;
     if (config == null) {
       config = {};
@@ -708,8 +708,8 @@ Resolver = (function(_super) {
     terminates = [].concat(config.terminate).map(function(fn) {
       if (typeof fn === 'number') {
         return (function(limit) {
-          return function(popuration) {
-            return popuration.generationNumber >= limit;
+          return function(population) {
+            return population.generationNumber >= limit;
           };
         })(fn);
       } else {
@@ -721,21 +721,21 @@ Resolver = (function(_super) {
         return !_this.processing;
       };
     })(this));
-    popuration.sort();
-    popuration.generationNumber = generationNumber = 0;
+    population.sort();
+    population.generationNumber = generationNumber = 0;
     process = (function(_this) {
       return function() {
         var _ref;
         if (_this.processing) {
-          popuration = ((_ref = config.reproduct.call(_this, popuration, config)) != null ? _ref : popuration).sort();
-          popuration.generationNumber = ++generationNumber;
-          _this.emit('reproduct', popuration, config);
+          population = ((_ref = config.reproduct.call(_this, population, config)) != null ? _ref : population).sort();
+          population.generationNumber = ++generationNumber;
+          _this.emit('reproduct', population, config);
         }
         if (terminates.some(function(fn) {
-          return fn.call(this, popuration);
+          return fn.call(this, population);
         })) {
-          _this.emit('terminate', popuration, config);
-          return callback_on_result != null ? callback_on_result.call(_this, popuration.best, popuration, config) : void 0;
+          _this.emit('terminate', population, config);
+          return callback_on_result != null ? callback_on_result.call(_this, population.best, population, config) : void 0;
         } else {
           return _this.processing = setTimeout(process, config.intervalMillis);
         }
@@ -777,36 +777,36 @@ Selector = (function() {
     this.next = next;
   }
 
-  Selector.roulette = function(popuration) {
+  Selector.roulette = function(population) {
     var S;
-    S = popuration.fitness.sum();
+    S = population.fitness.sum();
     return new Selector(function() {
       var r, s;
       r = Math.random() * S;
       s = 0;
-      return popuration.sample(function(I) {
+      return population.sample(function(I) {
         return (s += I.fitness) > r;
       });
     });
   };
 
-  Selector.tournament = function(popuration, size) {
+  Selector.tournament = function(population, size) {
     var N, selector;
     if (size == null) {
       size = this.tournament.defaultSize;
     }
-    N = popuration.size();
+    N = population.size();
     selector = new Selector(function() {
       var group;
       group = (function() {
         var _i, _results;
         _results = [];
         for (_i = 1; 1 <= size ? _i <= size : _i >= size; 1 <= size ? _i++ : _i--) {
-          _results.push(popuration.get(randomInt(N)));
+          _results.push(population.get(randomInt(N)));
         }
         return _results;
       })();
-      return (group.sort(popuration.comparator))[0];
+      return (group.sort(population.comparator))[0];
     });
     return Object.defineProperty(selector, 'size', {
       value: size
@@ -855,9 +855,9 @@ module.exports = {
  * http://opensource.org/licenses/mit-license.php
  */
 module.exports = {
-  full: '0.3.0',
+  full: '0.4.0',
   major: 0,
-  minor: 3,
+  minor: 4,
   dot: 0
 };
 
