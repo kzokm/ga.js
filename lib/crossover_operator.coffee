@@ -97,7 +97,7 @@ class CrossoverOperator
 
 
   # Partially-mapped crossover operation
-  @PMX: (n)-> withRotation n, (c1, c2, p)->
+  @PMX: @partiallyMapped = (n)-> withRotation n, (c1, c2, p)->
     o = c1[...p]
     for q in [p..c1.length - 1]
       o[q] ?= do ->
