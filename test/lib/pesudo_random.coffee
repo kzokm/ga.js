@@ -28,7 +28,7 @@ pesudoRandom.clear = ->
   @
 
 pesudoRandom.attach = ->
-  beforeEach -> pesudoRandom.clear()
+  afterEach -> pesudoRandom.clear()
   @
 
 module.exports = Math.random = pesudoRandom
