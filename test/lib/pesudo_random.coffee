@@ -4,7 +4,10 @@ Math._random ?= Math.random
 pesudoRandomValues = []
 
 pesudoRandom = ->
-  pesudoRandomValues.shift() ? Math._random()
+  if Array.isArray pesudoRandomValues
+    pesudoRandomValues.shift() ? Math._random()
+  else
+    pesudoRandomValues
 
 pesudoRandom.MIN_VALUE = 0
 pesudoRandom.MAX_VALUE = 0.99999999
@@ -16,6 +19,9 @@ pesudoRandom.push = ->
 pesudoRandom.set = ->
   @clear()
     .push arguments...
+
+pesudoRandom.freeze = (value)->
+  pesudoRandomValues = value
 
 pesudoRandom.clear = ->
   pesudoRandomValues = []

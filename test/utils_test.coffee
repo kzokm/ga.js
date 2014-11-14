@@ -66,6 +66,16 @@ describe 'utils', ->
       expect utils.rotate array, -1
         .to.deep.equal [5, 1, 2, 3, 4]
 
+  describe '.exchange array, pos1, pos2', ->
+    array = [1, 2, 3, 4, 5]
+
+    it 'should return array it self, that exchaged element at pos1 and pos2', ->
+      expect utils.exchange array, 0, 4
+        .to.equal array
+        .and.deep.equal [5, 2, 3, 4, 1]
+
+      expect utils.exchange array, 1, 3
+        .to.deep.equal [5, 4, 3, 2, 1]
 
   describe '.reject array, excepts', ->
     it 'should return new array not contains element of excepts', ->
@@ -76,3 +86,26 @@ describe 'utils', ->
 
       expect utils.reject array, [2, 3]
         .to.deep.equal [1, 4, 1, 5]
+
+  describe '.scramble array, offset, length', ->
+    array = [1, 2, 3, 4, 5]
+
+    it 'should return array it self,', ->
+      random.freeze 0
+      expect utils.scramble array
+        .to.equal array
+        .and.deep.equal [1, 2, 3, 4, 5]
+
+    it 'can scramble array,', ->
+      random.freeze random.MAX_VALUE
+      expect utils.scramble array
+        .to.equal array
+        .and.deep.equal [5, 1, 2, 3, 4]
+
+      expect utils.scramble array, 1
+        .to.equal array
+        .and.deep.equal [5, 4, 1, 2, 3]
+
+      expect utils.scramble array, 1, 3
+        .to.equal array
+        .and.deep.equal [5, 2, 4, 1, 3]
