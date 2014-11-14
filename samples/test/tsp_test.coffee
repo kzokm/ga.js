@@ -1,6 +1,8 @@
 'use strict'
 {expect} = require 'chai'
 
+utils = require '../../lib/utils'
+
 describe 'samples/TSP', ->
   TSP = require '../tsp'
   it 'should be a function', ->
@@ -22,19 +24,19 @@ describe 'samples/TSP', ->
         chromosome = individual.chromosome
         expect chromosome
           .to.be.an 'array'
-          .to.have.length cities.length - 1
+          .to.have.length cities.length
         expect chromosome
           .to.satisfy ->
             chromosome.every (gene)-> typeof gene == 'number'
 
       xit '1st gene should be less than last gene', ->
-        individual = new Individual [3, 1, 2]
+        individual = new Individual [0, 3, 1, 2]
         chromosome = individual.chromosome
         expect chromosome[0]
           .to.be.lessThan chromosome[2]
 
-      it 'should contain all number between 1 and cities.length - 1', ->
-        sequence = [1..cities.length - 1]
+      it 'should contain all number between 0 and cities.length - 1', ->
+        sequence = [0..cities.length - 1]
         for [0..1000]
           individual = new Individual
           expect individual.chromosome.sort (a,b)-> a - b
@@ -49,9 +51,9 @@ describe 'samples/TSP', ->
 
     describe '#route()', ->
       it 'should return a sequece of around cities start from cities[0]', ->
-        individual = new Individual [1, 5, 3, 2, 4]
+        individual = new Individual [1, 0, 2, 5, 3, 4]
         expect individual.route()
-          .to.deep.equal [0, 1, 5, 3, 2, 4, 0]
+          .to.deep.equal [0, 1, 4, 3, 5, 2, 0]
 
     describe '#dump()', ->
       it 'should return description string', ->
@@ -63,18 +65,16 @@ describe 'samples/TSP', ->
   describe '#resolve()', ->
     it 'should resolve problem', (done)->
       tsp.resolve
-        N: 100
-        G: 50
-        Fc: 'PMX(2)'
-        Pc: 0.9
+        N: 50
+        G: 100
+        Fc: 'OX(1)'
+        Pc: 0.95
         Fm: 'inversion()'
         Pm: 0.1
       , (result)->
+        console.log result
         expect result.totalDistance.toFixed 3
           .to.equal '184.804'
-        route = result.route()
-        if route[1] > route[route.length - 2]
-          route.reverse()
-        expect route
+        expect result.route()
           .to.deep.equal [0, 1, 4, 3, 2, 0]
         done()
