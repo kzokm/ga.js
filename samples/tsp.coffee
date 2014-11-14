@@ -11,30 +11,31 @@ class TSP extends GA.Resolver
         super chromosome ?= randomRoute cities
 
       randomRoute = (cities)->
-        indexes = [1..cities.length - 1]
-        for val, i in indexes
-          j = i + GA.randomInt(indexes.length - i)
-          indexes[i] = indexes[j]
-          indexes[j] = val
-        indexes
+        GA.scramble [0..cities.length - 1]
 
       fitnessFunction: ->
-        start = goal = prev = 0
         @totalDistance = 0
+        prev = @chromosome[@chromosome.length - 1]
         for next in @chromosome
           @totalDistance += distanceBetween prev, next
           prev = next
-        @totalDistance += distanceBetween prev, goal
+        @totalDistance
 
       distanceBetween = (i, j)->
         Math.sqrt (cities[i].x - cities[j].x) ** 2 + (cities[i].y - cities[j].y) ** 2
 
       route: ->
-        [].concat 0, @chromosome, 0
+        route = [].concat @chromosome
+        route = GA.rotate route, route.indexOf 0
+        route.push 0
+        if route[1] > route[route.length - 2]
+          route.reverse()
+        route
 
       dump: ->
         @fitness
         "total distance: #{@totalDistance.toFixed 3}Km around [#{@route()}]"
+
 
   class Population extends GA.Population
     comparator: Population.comparator.asc
