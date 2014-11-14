@@ -106,6 +106,9 @@ block content
                cy: (d)=> @scale d.y
                r: radius
 
+          @route.attr
+            d: -> ''
+
         update: (population)->
           path = d3.svg.line()
             .x (d)=> @scale @cities[d].x
