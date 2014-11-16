@@ -4,7 +4,7 @@
   "description": "Genetic Algorithms Programing Library for JavaScript",
   "author": "OKAMURA, Kazuhide <okamura@techlier.jp>",
   "repository": {
-    "url": "git://github.com/techlier/ga.js.git"
+    "url": "git://github.com/kzokm/ga.js.git"
   },
   "dependencies": {
     "coffee-middleware": "^0.2.1",

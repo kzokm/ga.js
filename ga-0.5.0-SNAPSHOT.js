@@ -7,24 +7,24 @@ window.GA = require('../lib/index');
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
  */
-var CrossoverOperator, randomInt;
+var CrossoverOperator, utils;
 
-randomInt = require('./utils').randomInt;
+utils = require('./utils');
 
 CrossoverOperator = (function() {
-  var countElements, exchange, exchangeAfter, fill, partialExchange, pmx, randomLocusOf, reject;
+  var randomLocusOf, swap, swapAfter, withRotation;
 
   function CrossoverOperator() {}
 
   randomLocusOf = function(c) {
-    return randomInt(c.length);
+    return utils.randomInt(c.length);
   };
 
   CrossoverOperator.point = function(n) {
@@ -34,7 +34,7 @@ CrossoverOperator = (function() {
     return Object.defineProperty((function() {
       if (n === 1) {
         return function(c1, c2) {
-          return exchangeAfter(c1, c2, randomLocusOf(c1));
+          return swapAfter(c1, c2, randomLocusOf(c1));
         };
       } else if (n > 1) {
         return function(c1, c2) {
@@ -52,7 +52,7 @@ CrossoverOperator = (function() {
             if (i > 0) {
               p++;
             }
-            return _ref = exchangeAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
+            return _ref = swapAfter(c1, c2, p), c1 = _ref[0], c2 = _ref[1], _ref;
           });
           return [c1, c2];
         };
@@ -64,7 +64,7 @@ CrossoverOperator = (function() {
     });
   };
 
-  exchangeAfter = function(c1, c2, p) {
+  swapAfter = function(c1, c2, p) {
     return [c1.slice(0, p).concat(c2.slice(p)), c2.slice(0, p).concat(c1.slice(p))];
   };
 
@@ -78,7 +78,7 @@ CrossoverOperator = (function() {
       c2 = c2.concat();
       for (i = _i = 0, _ref = c1.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         if (Math.random() < probability) {
-          exchange(c1, c2, i);
+          swap(c1, c2, i);
         }
       }
       return [c1, c2];
@@ -87,32 +87,41 @@ CrossoverOperator = (function() {
     });
   };
 
-  exchange = function(c1, c2, pos) {
+  swap = function(array1, array2, p) {
     var temp;
-    temp = c1[pos];
-    c1[pos] = c2[pos];
-    return c2[pos] = temp;
+    temp = array1[p];
+    array1[p] = array2[p];
+    array2[p] = temp;
+    return void 0;
   };
 
   CrossoverOperator.OX = CrossoverOperator.order = function(n) {
+    return withRotation(n, function(c1, c2, p) {
+      var o, _ref;
+      (_ref = (o = c1.slice(0, p))).push.apply(_ref, utils.reject(c2, o));
+      return o;
+    });
+  };
+
+  withRotation = function(n, operator) {
     if (n == null) {
       n = 2;
     }
     return Object.defineProperty((function() {
-      if (n === 1) {
+      if ((1 <= n && n <= 2)) {
         return function(c1, c2) {
-          var o1, o2, p, _ref, _ref1;
+          var o1, o2, p, r;
+          if (n === 2 && (r = randomLocusOf(c1))) {
+            c1 = utils.rotate(c1, r);
+            c2 = utils.rotate(c2, r);
+          }
           p = randomLocusOf(c1);
-          (_ref = (o1 = c1.slice(0, p))).push.apply(_ref, reject(c2, o1));
-          (_ref1 = (o2 = c2.slice(0, p))).push.apply(_ref1, reject(c1, o2));
-          return [o1, o2];
-        };
-      } else if (n > 0) {
-        return function(c1, c2) {
-          var o1, o2, _ref;
-          _ref = partialExchange(c1, c2, n), o1 = _ref[0], o2 = _ref[1];
-          fill(o1, reject(c2, o1));
-          fill(o2, reject(c1, o2));
+          o1 = operator(c1, c2, p);
+          o2 = operator(c2, c1, p);
+          if (r) {
+            o1 = utils.rotate(o1, -r);
+            o2 = utils.rotate(o2, -r);
+          }
           return [o1, o2];
         };
       } else {
@@ -121,57 +130,6 @@ CrossoverOperator = (function() {
     })(), 'n', {
       value: n
     });
-  };
-
-  reject = function(array, excepts) {
-    return array.filter(function(e) {
-      return (excepts.indexOf(e)) < 0;
-    });
-  };
-
-  fill = function(array, others) {
-    var i, j, v, _i, _len;
-    j = 0;
-    for (i = _i = 0, _len = array.length; _i < _len; i = ++_i) {
-      v = array[i];
-      if (array[i] == null) {
-        array[i] = others[j++];
-      }
-    }
-    return array;
-  };
-
-  partialExchange = function(c1, c2, n) {
-    var o1, o2, prev;
-    o1 = [];
-    o2 = [];
-    prev = 0;
-    ((function() {
-      var _i, _results;
-      _results = [];
-      for (_i = 1; 1 <= n ? _i <= n : _i >= n; 1 <= n ? _i++ : _i--) {
-        _results.push(randomLocusOf(c1));
-      }
-      return _results;
-    })()).sort(function(a, b) {
-      return a - b;
-    }).forEach(function(p, i) {
-      if (i % 2) {
-        o1.push.apply(o1, c1.slice(prev, +p + 1 || 9e9));
-        o2.push.apply(o2, c2.slice(prev, +p + 1 || 9e9));
-      } else {
-        o1.length = o2.length = p;
-      }
-      return prev = p;
-    });
-    if (n % 2) {
-      o1.push.apply(o1, c1.slice(prev));
-      o2.push.apply(o2, c2.slice(prev));
-    } else {
-      o1.length = c1.length;
-      o2.length = c2.length;
-    }
-    return [o1, o2];
   };
 
   CrossoverOperator.CX = CrossoverOperator.cycle = function() {
@@ -190,66 +148,38 @@ CrossoverOperator = (function() {
             throw new Error('Invalid chromosome for cyclic crossover');
           }
         }
-        if ((o1.length === length && length === countElements(o1))) {
+        if ((o1.length === length && length === utils.count(o1))) {
           break;
         }
         while (o1[p]) {
           p++;
         }
-        p %= length;
+        if (p === length) {
+          p = 0;
+        }
         _ref = [c2, c1], c1 = _ref[0], c2 = _ref[1];
       }
       return [o1, o2];
     };
   };
 
-  countElements = function(array) {
-    return array.reduce((function(count) {
-      return count + 1;
-    }), 0);
-  };
-
-  CrossoverOperator.PMX = function(n) {
-    if (n == null) {
-      n = 2;
-    }
-    return Object.defineProperty((function() {
-      if (n === 1) {
-        return function(c1, c2) {
-          var o1, o2, p;
-          p = randomLocusOf(c1);
-          o1 = pmx(c1.slice(0, p), c2, c1);
-          o2 = pmx(c2.slice(0, p), c1, c2);
-          return [o1, o2];
-        };
-      } else if (n > 1) {
-        return function(c1, c2) {
-          var o1, o2, _ref;
-          _ref = partialExchange(c1, c2, n), o1 = _ref[0], o2 = _ref[1];
-          o1 = pmx(o1, c2, c1);
-          o2 = pmx(o2, c1, c2);
-          return [o1, o2];
-        };
-      } else {
-        throw new Error("invalid number of crossover point: " + n);
-      }
-    })(), 'n', {
-      value: n
-    });
-  };
-
-  pmx = function(o, c1, c2) {
-    var p, _i, _ref, _results;
-    _results = [];
-    for (p = _i = 0, _ref = c1.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; p = 0 <= _ref ? ++_i : --_i) {
-      _results.push(o[p] != null ? o[p] : o[p] = (function() {
-        while (!((o.indexOf(c1[p])) < 0)) {
-          p = c2.indexOf(c1[p]);
+  CrossoverOperator.PMX = CrossoverOperator.partiallyMapped = function(n) {
+    return withRotation(n, function(c1, c2, p) {
+      var o, q, _i, _ref;
+      o = c1.slice(0, p);
+      for (q = _i = p, _ref = c1.length - 1; p <= _ref ? _i <= _ref : _i >= _ref; q = p <= _ref ? ++_i : --_i) {
+        if (o[q] == null) {
+          o[q] = (function() {
+            var g;
+            while (utils.contains(o, (g = c2[q]))) {
+              q = c1.indexOf(g);
+            }
+            return g;
+          })();
         }
-        return c1[p];
-      })());
-    }
-    return _results;
+      }
+      return o;
+    });
   };
 
   return CrossoverOperator;
@@ -264,9 +194,9 @@ module.exports = CrossoverOperator;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
@@ -313,9 +243,9 @@ module.exports = GA;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
@@ -409,9 +339,9 @@ module.exports = Individual;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
@@ -423,7 +353,7 @@ randomInt = require('./utils').randomInt;
 deprecated = require('deprecated');
 
 MutationOperator = (function() {
-  var exchange, randomLocusOf;
+  var randomLocusOf, swap;
 
   function MutationOperator() {}
 
@@ -452,17 +382,17 @@ MutationOperator = (function() {
     };
   };
 
-  MutationOperator.exchange = function() {
+  MutationOperator.swap = function() {
     return function(chromosome) {
       var p1, p2;
       p1 = randomLocusOf(chromosome);
       p2 = randomLocusOf(chromosome);
-      exchange(chromosome, p1, p2);
+      swap(chromosome, p1, p2);
       return chromosome;
     };
   };
 
-  exchange = function(c, p1, p2) {
+  swap = function(c, p1, p2) {
     var temp;
     temp = c[p1];
     c[p1] = c[p2];
@@ -495,9 +425,9 @@ module.exports = MutationOperator;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
@@ -657,9 +587,9 @@ module.exports = Population;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
@@ -761,9 +691,9 @@ module.exports = Resolver;
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
@@ -826,7 +756,7 @@ module.exports = Selector;
 
 
 },{"./utils":9}],9:[function(require,module,exports){
-var _base;
+var utils, _base;
 
 if ((_base = Function.prototype).property == null) {
   _base.property = function(prop, descriptor) {
@@ -835,11 +765,53 @@ if ((_base = Function.prototype).property == null) {
   };
 }
 
-module.exports = {
+utils = {
   randomInt: function(n) {
     return Math.floor(Math.random() * n);
+  },
+  count: function(array) {
+    return array.reduce((function(count) {
+      return count + 1;
+    }), 0);
+  },
+  contains: function(array, element) {
+    return (array.indexOf(element)) >= 0;
+  },
+  rotate: function(array, count) {
+    return array.slice(count).concat(array.slice(0, count));
+  },
+  reject: function(array, excepts) {
+    return array.filter(function(e) {
+      return !utils.contains(excepts, e);
+    });
+  },
+  swap: function(array, pos1, pos2) {
+    var temp;
+    if (pos1 !== pos2) {
+      temp = array[pos1];
+      array[pos1] = array[pos2];
+      array[pos2] = temp;
+    }
+    return array;
+  },
+  scramble: function(array, offset, length) {
+    var r;
+    if (offset == null) {
+      offset = 0;
+    }
+    if (length == null) {
+      length = array.length - offset;
+    }
+    while (length) {
+      r = utils.randomInt(length--);
+      utils.swap(array, offset, offset + r);
+      offset++;
+    }
+    return array;
   }
 };
+
+module.exports = utils;
 
 
 
@@ -847,9 +819,9 @@ module.exports = {
 
 /*
  * Genetic Algorithm API for JavaScript
- * https://github.com/techlier/ga.js
+ * https://github.com/kzokm/ga.js
  *
- * Copyright (c) 2014 Techlier Inc.
+ * Copyright (c) 2014 OKAMURA, Kazuhide
  *
  * This software is released under the MIT License.
  * http://opensource.org/licenses/mit-license.php
