@@ -1,8 +1,8 @@
 ###
 # Genetic Algorithm API for JavaScript
-# https://github.com/techlier/ga.js
+# https://github.com/kzokm/ga.js
 #
-# Copyright (c) 2014 Techlier Inc.
+# Copyright (c) 2014 OKAMURA, Kazuhide
 #
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
@@ -26,13 +26,13 @@ class MutationOperator
     chromosome
 
 
-  @exchange: -> (chromosome)->
+  @swap: -> (chromosome)->
     p1 = randomLocusOf chromosome
     p2 = randomLocusOf chromosome
-    exchange chromosome, p1, p2
+    swap chromosome, p1, p2
     chromosome
 
-  exchange = (c, p1, p2)->
+  swap = (c, p1, p2)->
     temp = c[p1]; c[p1] = c[p2]; c[p2] = temp
 
 

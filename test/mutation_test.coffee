@@ -69,24 +69,24 @@ describe 'MutationOperator', ->
       expect mutate ['A', 'B', 'C']
         .to.deep.equal ['a', 'B', 'C']
 
-  describe '.exchange()', ->
-    mutate = Mutation.exchange()
+  describe '.swap()', ->
+    mutate = Mutation.swap()
 
     it 'should return a function', ->
       expect mutate
         .to.be.a 'function'
 
-    it 'can exchange 1st and last genes', ->
+    it 'can swap 1st and last genes', ->
       random.set 0/5, random.MAX_VALUE
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equal [5, 2, 3, 4, 1]
 
-    it 'can exchange 2nd and 4th genes', ->
+    it 'can swap 2nd and 4th genes', ->
       random.set 1/5, 3/5
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equal [1, 4, 3, 2, 5]
 
-    it 'can exchange 4th and 2nd genes', ->
+    it 'can swap 4th and 2nd genes', ->
       random.set 3/5, 1/5
       expect mutate [1, 2, 3, 4, 5]
         .to.deep.equal [1, 4, 3, 2, 5]

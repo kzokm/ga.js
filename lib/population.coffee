@@ -1,8 +1,8 @@
 ###
 # Genetic Algorithm API for JavaScript
-# https://github.com/techlier/ga.js
+# https://github.com/kzokm/ga.js
 #
-# Copyright (c) 2014 Techlier Inc.
+# Copyright (c) 2014 OKAMURA, Kazuhide
 #
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
@@ -11,11 +11,11 @@
 {randomInt} = require './utils'
 {EventEmitter} = require 'events'
 
-class Popuration extends EventEmitter
-  constructor: (@Individual, popurationSize = 0) ->
+class Population extends EventEmitter
+  constructor: (@Individual, populationSize = 0) ->
     @generationNumber = 0
-    @individuals = if popurationSize > 1
-      for [1..popurationSize]
+    @individuals = if populationSize > 1
+      for [1..populationSize]
         new Individual
     else
       []
@@ -86,4 +86,4 @@ class Popuration extends EventEmitter
   @property 'worst',
     get: -> @individuals[@individuals.length - 1]
 
-module.exports = Popuration
+module.exports = Population

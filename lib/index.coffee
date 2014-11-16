@@ -1,8 +1,8 @@
 ###
 # Genetic Algorithm API for JavaScript
-# https://github.com/techlier/ga.js
+# https://github.com/kzokm/ga.js
 #
-# Copyright (c) 2014 Techlier Inc.
+# Copyright (c) 2014 OKAMURA, Kazuhide
 #
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
@@ -13,7 +13,7 @@
 class GA
   @version: require './version'
   @Resolver: require './resolver'
-  @Popuration: require './popuration'
+  @Population: require './population'
   @Individual: require './individual'
   @Selector: require './selector'
   @Crossover: require './crossover_operator'

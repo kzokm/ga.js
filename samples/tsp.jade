@@ -24,7 +24,7 @@ block content
 
     h2 GA Parameter:
     .input
-      label Number of Popuration
+      label Number of Population
       input#N(type='number' value='300')
 
     .input
@@ -42,13 +42,13 @@ block content
         option PMX(2)
     .input
       label Rate
-      input#Pc(type='number' value='100.0')
+      input#Pc(type='number' value='95.0')
       | %
 
     .input
       label Mutation
       select#Fm
-        option exchange()
+        option swap()
         option(selected) inversion()
     .input
       label Rate
@@ -106,13 +106,16 @@ block content
                cy: (d)=> @scale d.y
                r: radius
 
-        update: (popuration)->
+          @route.attr
+            d: -> ''
+
+        update: (population)->
           path = d3.svg.line()
             .x (d)=> @scale @cities[d].x
             .y (d)=> @scale @cities[d].y
 
           @route.attr
-            d: -> path popuration.best.route()
+            d: -> path population.best.route()
 
       class Chart extends Histogram
         constructor: ->
@@ -125,9 +128,9 @@ block content
             height: $('#N').val() / 10
           @histogram.setup [150, data.cities.length * 50], (d)-> d.totalDistance
 
-        update: (popuration)->
-          @map.update popuration
-          @histogram.update popuration
+        update: (population)->
+          @map.update population
+          @histogram.update population
 
       chart = new Chart
 
@@ -140,10 +143,10 @@ block content
           chart.setup data
           tsp?.terminate()
           tsp = new TSP data.cities
-            .on 'reproduct', (popuration)->
-              console.log 'reproduct', popuration.dump()
-              progress.update popuration
-              chart.update popuration
+            .on 'reproduct', (population)->
+              console.log 'reproduct', population.dump()
+              progress.update population
+              chart.update population
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()
@@ -152,8 +155,8 @@ block content
               Fm: $('#Fm').val()
               Pm: $('#Pm').val() / 100
               #intervalMillis: 1000
-            , (result, popuration)->
-              console.log 'finish', popuration.dump()
+            , (result, population)->
+              console.log 'finish', population.dump()
               console.log result.itemNumbers
               console.log result.dump()
 
@@ -162,7 +165,7 @@ block content
         tsp?.terminate()
         tsp = undefined
 
-      GA.Popuration::dump = ->
+      GA.Population::dump = ->
         "#{@generationNumber}" +
           ", best: #{@best.fitness.toFixed 3}" +
           ", worst: #{@worst.fitness.toFixed 3}" +

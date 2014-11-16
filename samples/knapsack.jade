@@ -28,7 +28,7 @@ block content
 
     h2 GA Parameter:
     .input
-      label Number of Popuration
+      label Number of Population
       input#N(type='number' value='300')
 
     .input
@@ -85,10 +85,10 @@ block content
           chart.setup data
           knapsack?.terminate()
           knapsack = new Knapsack (parseInt $('#C').val()), data.items
-            .on 'reproduct', (popuration)->
-              console.log 'reproduct', popuration.dump()
-              progress.update popuration
-              chart.update popuration
+            .on 'reproduct', (population)->
+              console.log 'reproduct', population.dump()
+              progress.update population
+              chart.update population
             .resolve
               N: parseInt $('#N').val()
               G: parseInt $('#G').val()
@@ -97,8 +97,8 @@ block content
               Fm: $('#Fm').val()
               Pm: $('#Pm').val() / 100
               #intervalMillis: 1000
-            , (result, popuration)->
-              console.log 'finish', popuration.dump()
+            , (result, population)->
+              console.log 'finish', population.dump()
               console.log result.itemNumbers
               console.log result.dump()
 
@@ -107,7 +107,7 @@ block content
         knapsack?.terminate()
         knapsack = undefined
 
-      GA.Popuration::dump = ->
+      GA.Population::dump = ->
         "#{@generationNumber}" +
           ", best: #{@best.fitness.toFixed 2}" +
           ", worst: #{@worst.fitness.toFixed 2}" +

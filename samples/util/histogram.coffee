@@ -20,11 +20,11 @@ class @Histogram extends DrawingArea
       .bins d3.range @min, @max, (@max - @min) / @config.resolution
       .value value
 
-  update: (popuration)->
+  update: (population)->
     @chart.selectAll 'rect'
       .remove()
     @chart.selectAll 'rect'
-      .data @histogram popuration.individuals
+      .data @histogram population.individuals
       .enter()
       .append 'rect'
       .attr

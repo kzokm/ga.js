@@ -1,36 +1,36 @@
 ###
 # Genetic Algorithm API for JavaScript
-# https://github.com/techlier/ga.js
+# https://github.com/kzokm/ga.js
 #
-# Copyright (c) 2014 Techlier Inc.
+# Copyright (c) 2014 OKAMURA, Kazuhide
 #
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
 ###
 
-{randomInt} = require './utils'
+utils = require './utils'
 
 class CrossoverOperator
-  randomLocusOf = (c)-> randomInt c.length
+  randomLocusOf = (c)-> utils.randomInt c.length
 
   # N point crossover operation
   @point: (n = 1)-> Object.defineProperty(
     if n == 1
       (c1, c2)->
-        exchangeAfter c1, c2, randomLocusOf c1
+        swapAfter c1, c2, randomLocusOf c1
     else if n > 1
       (c1, c2)->
         (randomLocusOf c1 for [1..n])
         .sort (a, b)-> a - b
         .forEach (p, i)->
           p++ if i > 0
-          [c1, c2] = exchangeAfter c1, c2, p
+          [c1, c2] = swapAfter c1, c2, p
         [c1, c2]
     else
       throw new Error "invalid number of crossover point: #{n}"
   , 'n', value: n)
 
-  exchangeAfter = (c1, c2, p)-> [
+  swapAfter = (c1, c2, p)-> [
     c1[...p].concat c2[p...]
     c2[...p].concat c1[p...]
   ]
@@ -42,61 +42,39 @@ class CrossoverOperator
     c2 = c2.concat()
     for i in [0..c1.length - 1]
       if Math.random() < probability
-        exchange c1, c2, i
+        swap c1, c2, i
     [c1, c2]
   , 'probability', value: probability
 
-  exchange = (c1, c2, pos)->
-    temp = c1[pos]; c1[pos] = c2[pos]; c2[pos] = temp
+  swap = (array1, array2, p)->
+    temp = array1[p]
+    array1[p] = array2[p]
+    array2[p] = temp
+    undefined
 
 
   # Order crossover operation
-  @OX: @order = (n = 2)-> Object.defineProperty(
-    if n == 1
+  @OX: @order = (n)-> withRotation n, (c1, c2, p)->
+    (o = c1[...p]).push (utils.reject c2, o)...
+    o
+
+
+  withRotation = (n = 2, operator)-> Object.defineProperty(
+    if 1 <= n <= 2
       (c1, c2)->
+        if n == 2 and r = randomLocusOf c1
+          c1 = utils.rotate c1, r
+          c2 = utils.rotate c2, r
         p = randomLocusOf c1
-        (o1 = c1[...p]).push (reject c2, o1)...
-        (o2 = c2[...p]).push (reject c1, o2)...
-        [o1, o2]
-    else if n > 0
-      (c1, c2)->
-        [o1, o2] = partialExchange c1, c2, n
-        fill o1, reject c2, o1
-        fill o2, reject c1, o2
+        o1 = operator c1, c2, p
+        o2 = operator c2, c1, p
+        if r
+          o1 = utils.rotate o1, -r
+          o2 = utils.rotate o2, -r
         [o1, o2]
     else
       throw new Error "invalid number of crossover point: #{n}"
   , 'n', value: n)
-
-  reject = (array, excepts)->
-    array.filter (e)-> (excepts.indexOf e) < 0
-
-  fill = (array, others)->
-    j = 0
-    for v, i in array
-      array[i] ?= others[j++]
-    array
-
-  partialExchange = (c1, c2, n)->
-    o1 = []
-    o2 = []
-    prev = 0
-    (randomLocusOf c1 for [1..n])
-    .sort (a, b)-> a - b
-    .forEach (p, i)->
-      if i % 2
-        o1.push c1[prev..p]...
-        o2.push c2[prev..p]...
-      else
-        o1.length = o2.length = p
-      prev = p
-    if n % 2
-      o1.push c1[prev..]...
-      o2.push c2[prev..]...
-    else
-      o1.length = c1.length
-      o2.length = c2.length
-    [o1, o2]
 
 
   # Cycle crossover operation
@@ -111,39 +89,22 @@ class CrossoverOperator
         o2[p] = c2[p]
         p = c1.indexOf c2[p]
         throw new Error 'Invalid chromosome for cyclic crossover' if p < 0
-      break if o1.length == length == countElements(o1)
+      break if o1.length == length == utils.count o1
       p++ while o1[p]
-      p %= length
+      p = 0 if p == length
       [c1, c2] = [c2, c1]
     [o1, o2]
 
-  countElements = (array)->
-    array.reduce ((count)-> count + 1), 0
-
 
   # Partially-mapped crossover operation
-  @PMX: (n = 2)-> Object.defineProperty(
-    if n == 1
-      (c1, c2)->
-        p = randomLocusOf c1
-        o1 = pmx c1[...p], c2, c1
-        o2 = pmx c2[...p], c1, c2
-        [o1, o2]
-    else if n > 1
-      (c1, c2)->
-        [o1, o2] = partialExchange c1, c2, n
-        o1 = pmx o1, c2, c1
-        o2 = pmx o2, c1, c2
-        [o1, o2]
-    else
-      throw new Error "invalid number of crossover point: #{n}"
-  , 'n', value: n)
+  @PMX: @partiallyMapped = (n)-> withRotation n, (c1, c2, p)->
+    o = c1[...p]
+    for q in [p..c1.length - 1]
+      o[q] ?= do ->
+        while utils.contains o, (g = c2[q])
+          q = c1.indexOf g
+        g
+    o
 
-  pmx = (o, c1, c2)->
-    for p in [0..c1.length - 1]
-      o[p] ?= do ->
-        until (o.indexOf c1[p]) < 0
-          p = c2.indexOf c1[p]
-        c1[p]
 
 module.exports = CrossoverOperator

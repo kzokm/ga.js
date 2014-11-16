@@ -1,8 +1,8 @@
 ###
 # Genetic Algorithm API for JavaScript
-# https://github.com/techlier/ga.js
+# https://github.com/kzokm/ga.js
 #
-# Copyright (c) 2014 Techlier Inc.
+# Copyright (c) 2014 OKAMURA, Kazuhide
 #
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
@@ -13,20 +13,20 @@
 class Selector
   constructor: (@next)->
 
-  @roulette: (popuration)->
-    S = popuration.fitness.sum()
+  @roulette: (population)->
+    S = population.fitness.sum()
     new Selector ->
       r = Math.random() * S
       s = 0
-      popuration.sample (I)->
+      population.sample (I)->
         (s += I.fitness) > r
 
-  @tournament: (popuration, size = @tournament.defaultSize)->
-    N = popuration.size()
+  @tournament: (population, size = @tournament.defaultSize)->
+    N = population.size()
     selector = new Selector ->
       group = for [1..size]
-        popuration.get randomInt N
-      (group.sort popuration.comparator)[0]
+        population.get randomInt N
+      (group.sort population.comparator)[0]
     Object.defineProperty selector, 'size', value: size
 
   Object.defineProperty @tournament, 'defaultSize', value: 4

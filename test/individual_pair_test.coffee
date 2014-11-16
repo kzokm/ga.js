@@ -2,7 +2,7 @@
 {expect,AssertionError} = require 'chai'
 
 describe 'Individual.pair', ->
-  Popuration = require '../lib/popuration'
+  Population = require '../lib/population'
   class Individual extends require '../lib/individual'
     constructor: (chromosome)->
       chromosome = Array::slice.apply chromosome
@@ -11,14 +11,14 @@ describe 'Individual.pair', ->
     fitnessFunction: ->
       @chromosome.reduce (i, j)-> i + j
 
-  popuration = new Popuration Individual
+  population = new Population Individual
     .add new Individual '0001'
     .add new Individual '0010'
     .add new Individual '0100'
     .add new Individual '1000'
 
   Selector = require '../lib/selector'
-  selector = Selector.roulette popuration
+  selector = Selector.roulette population
 
 
   random = require './lib/pesudo_random'
@@ -37,8 +37,8 @@ describe 'Individual.pair', ->
       expect pair.parents
         .to.be.an 'array'
         .that.have.length 2
-        .with.contain popuration.get 0
-        .and.contain popuration.get -1
+        .with.contain population.get 0
+        .and.contain population.get -1
 
 
   describe '#crossover()', ->
