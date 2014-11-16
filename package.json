@@ -1,6 +1,6 @@
 {
   "name": "ga.js",
-  "version": "0.5.0",
+  "version": "0.6.0-SNAPSHOT",
   "description": "Genetic Algorithms Programing Library for JavaScript",
   "author": "OKAMURA, Kazuhide <okamura@techlier.jp>",
   "repository": {
