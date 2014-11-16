@@ -17,20 +17,20 @@ class CrossoverOperator
   @point: (n = 1)-> Object.defineProperty(
     if n == 1
       (c1, c2)->
-        exchangeAfter c1, c2, randomLocusOf c1
+        swapAfter c1, c2, randomLocusOf c1
     else if n > 1
       (c1, c2)->
         (randomLocusOf c1 for [1..n])
         .sort (a, b)-> a - b
         .forEach (p, i)->
           p++ if i > 0
-          [c1, c2] = exchangeAfter c1, c2, p
+          [c1, c2] = swapAfter c1, c2, p
         [c1, c2]
     else
       throw new Error "invalid number of crossover point: #{n}"
   , 'n', value: n)
 
-  exchangeAfter = (c1, c2, p)-> [
+  swapAfter = (c1, c2, p)-> [
     c1[...p].concat c2[p...]
     c2[...p].concat c1[p...]
   ]
@@ -42,11 +42,11 @@ class CrossoverOperator
     c2 = c2.concat()
     for i in [0..c1.length - 1]
       if Math.random() < probability
-        exchange c1, c2, i
+        swap c1, c2, i
     [c1, c2]
   , 'probability', value: probability
 
-  exchange = (array1, array2, p)->
+  swap = (array1, array2, p)->
     temp = array1[p]
     array1[p] = array2[p]
     array2[p] = temp

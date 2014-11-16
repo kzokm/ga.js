@@ -26,13 +26,13 @@ class MutationOperator
     chromosome
 
 
-  @exchange: -> (chromosome)->
+  @swap: -> (chromosome)->
     p1 = randomLocusOf chromosome
     p2 = randomLocusOf chromosome
-    exchange chromosome, p1, p2
+    swap chromosome, p1, p2
     chromosome
 
-  exchange = (c, p1, p2)->
+  swap = (c, p1, p2)->
     temp = c[p1]; c[p1] = c[p2]; c[p2] = temp
 
 

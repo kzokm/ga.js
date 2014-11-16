@@ -21,7 +21,7 @@ utils =
   reject: (array, excepts)->
     array.filter (e)-> !utils.contains excepts, e
 
-  exchange: (array, pos1, pos2)->
+  swap: (array, pos1, pos2)->
     if pos1 != pos2
       temp = array[pos1]
       array[pos1] = array[pos2]
@@ -31,7 +31,7 @@ utils =
   scramble: (array, offset = 0, length = array.length - offset)->
     while length
       r = utils.randomInt length--
-      utils.exchange array, offset, offset + r
+      utils.swap array, offset, offset + r
       offset++
     array
 

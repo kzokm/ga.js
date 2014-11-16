@@ -66,15 +66,15 @@ describe 'utils', ->
       expect utils.rotate array, -1
         .to.deep.equal [5, 1, 2, 3, 4]
 
-  describe '.exchange array, pos1, pos2', ->
+  describe '.swap array, pos1, pos2', ->
     array = [1, 2, 3, 4, 5]
 
     it 'should return array it self, that exchaged element at pos1 and pos2', ->
-      expect utils.exchange array, 0, 4
+      expect utils.swap array, 0, 4
         .to.equal array
         .and.deep.equal [5, 2, 3, 4, 1]
 
-      expect utils.exchange array, 1, 3
+      expect utils.swap array, 1, 3
         .to.deep.equal [5, 4, 3, 2, 1]
 
   describe '.reject array, excepts', ->
